@@ -1,0 +1,25 @@
+import React from 'react';
+
+export const YapeCard = ({ yape }) => {
+  return (
+    <div className="glass rounded-2xl p-6 mb-4 flex items-center justify-between transform transition-all duration-500 hover:scale-[1.02] hover:bg-white/10 animate-fade-in-up group cursor-default">
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yape to-yape-light flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-yape/40 group-hover:shadow-yape/60 transition-shadow">
+          Y
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-white tracking-wide">{yape.remitente}</h3>
+          <p className="text-gray-400 text-sm font-medium">
+            {new Date(yape.fecha_hora).toLocaleTimeString()} - Pago Validado
+          </p>
+        </div>
+      </div>
+      
+      <div className="text-right">
+        <span className="text-3xl font-black text-emerald-400 tracking-tight drop-shadow-md">
+          +S/ {parseFloat(yape.monto).toFixed(2)}
+        </span>
+      </div>
+    </div>
+  );
+};

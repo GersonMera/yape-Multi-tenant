@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yape: #7B228B;
+  --color-yape-light: #9B35AF;
+  
+  --animate-fade-in-up: fadeInUp 0.5s ease-out;
+  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 min-h-screen;
+    background-image: radial-gradient(circle at top, #1f2937 0%, #030712 100%);
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+}

@@ -1,0 +1,16 @@
+# Frontend dependencies
+frontend/node_modules/
+frontend/dist/
+
+# Backend dependencies
+backend/vendor/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Debug and temp files
+webhook_debug.txt
+test_regex.php
+.gemini/
