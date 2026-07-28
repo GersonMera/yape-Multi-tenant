@@ -9,8 +9,6 @@ $dotenv->load();
 require_once __DIR__ . '/../../src/config.php';
 
 use App\Config;
-use PDO;
-use PDOException;
 use Pusher\Pusher;
 
 // Headers CORS para API REST
