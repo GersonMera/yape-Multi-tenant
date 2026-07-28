@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMode }) => {
+export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMode, onOpenCloseModal }) => {
   const totalReal = summary?.total_real || 0;
   const countReal = summary?.count_real || 0;
   const totalTest = summary?.total_test || 0;
@@ -52,9 +52,17 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
         )}
       </div>
 
-      {/* Interruptor para Mostrar/Ocultar Pruebas (Solo visible en Demo Mode) */}
-      {isDemoMode && (
-        <div className="flex justify-end items-center px-2">
+      {/* Acciones: Botón de Cierre de Caja e Interruptor de Pruebas */}
+      <div className="flex flex-wrap justify-between items-center gap-4 px-2">
+        <button
+          type="button"
+          onClick={onOpenCloseModal}
+          className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2"
+        >
+          <span>📊</span> Reporte de Cierre de Caja
+        </button>
+
+        {isDemoMode && (
           <button
             type="button"
             onClick={() => onToggleTests(!includeTests)}
@@ -67,8 +75,8 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
             <span>{includeTests ? '🟢' : '⚪'}</span>
             <span>{includeTests ? 'Mostrando pruebas en historial' : 'Ocultando pruebas en historial'}</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

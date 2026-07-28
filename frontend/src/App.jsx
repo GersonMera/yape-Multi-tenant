@@ -3,6 +3,7 @@ import { usePusher } from './hooks/usePusher';
 import { YapeCard } from './components/YapeCard';
 import { TenantModal } from './components/TenantModal';
 import { CashierSummary } from './components/CashierSummary';
+import { CashierCloseModal } from './components/CashierCloseModal';
 
 function App() {
   const tenantId = 1; 
@@ -10,6 +11,7 @@ function App() {
 
   const [tenant, setTenant] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [simulating, setSimulating] = useState(false);
 
   const [transactions, setTransactions] = useState([]);
@@ -120,7 +122,13 @@ function App() {
               Modo Demo Activo
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setIsCloseModalOpen(true)}
+              className="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
+            >
+              <span>📊</span> Cierre de Caja
+            </button>
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all border border-white/10 flex items-center gap-1.5"
@@ -150,7 +158,8 @@ function App() {
         summary={summary} 
         includeTests={includeTests} 
         onToggleTests={setIncludeTests} 
-        isDemoMode={isDemoMode} 
+        isDemoMode={isDemoMode}
+        onOpenCloseModal={() => setIsCloseModalOpen(true)}
       />
 
       <main>
@@ -183,6 +192,14 @@ function App() {
         onClose={() => setIsModalOpen(false)}
         tenant={tenant}
         onUpdateName={(newName) => setTenant(prev => ({ ...prev, nombre_negocio: newName }))}
+      />
+
+      <CashierCloseModal
+        isOpen={isCloseModalOpen}
+        onClose={() => setIsCloseModalOpen(false)}
+        summary={summary}
+        tenant={tenant}
+        transactions={transactions}
       />
     </div>
   );
