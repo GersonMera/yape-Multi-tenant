@@ -1,27 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  --color-yape: #7B228B;
-  --color-yape-light: #9B35AF;
+  --color-yape: #8B5CF6;
+  --color-yape-dark: #6D28D9;
+  --color-yape-light: #A78BFA;
   
-  --animate-fade-in-up: fadeInUp 0.5s ease-out;
-  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-fade-in-up: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   
   @keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(20px); }
+    0% { opacity: 0; transform: translateY(16px); }
     100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleUp {
+    0% { opacity: 0; transform: scale(0.96); }
+    100% { opacity: 1; transform: scale(1); }
   }
 }
 
 @layer base {
   body {
-    @apply bg-gray-950 text-gray-100 min-h-screen;
-    background-image: radial-gradient(circle at top, #1f2937 0%, #030712 100%);
+    @apply bg-[#07080D] text-gray-100 min-h-screen antialiased selection:bg-purple-500/30 selection:text-purple-200;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.18), transparent),
+      radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.08), transparent);
+    background-attachment: fixed;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-xl;
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300 hover:border-purple-500/30 hover:bg-white/[0.06];
+  }
+
+  .glow-yape {
+    box-shadow: 0 0 30px -5px rgba(139, 92, 246, 0.35);
   }
 }

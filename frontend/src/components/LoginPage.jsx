@@ -28,29 +28,35 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      <div className="glass w-full max-w-md rounded-3xl p-8 border border-white/10 shadow-2xl space-y-8 animate-fade-in-up">
-        {/* Encabezado con Logo y Título */}
-        <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-gradient-to-tr from-yape to-yape-light rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-yape/30">
-            <span className="text-3xl font-black text-white">Y</span>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Esferas de luz ambiental de fondo */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="glass w-full max-w-md rounded-3xl p-8 sm:p-10 border border-white/10 shadow-2xl space-y-8 animate-fade-in-up relative z-10">
+        {/* Encabezado con Logo Vibrante y Jerarquía Premium */}
+        <div className="text-center space-y-3">
+          <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 via-violet-600 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-purple-500/40 glow-yape transform transition-transform duration-300 hover:scale-105">
+            <span className="text-3xl font-black text-white tracking-wider">Y</span>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Yape POS SaaS</h1>
-          <p className="text-sm text-gray-400">Autenticación Multi-Tenant & Super Admin</p>
+          <div>
+            <h1 className="text-2xl font-black text-white tracking-tight">Yape POS SaaS</h1>
+            <p className="text-xs text-gray-400 mt-1 font-medium">Plataforma de Autenticación & Control Multi-Tenant</p>
+          </div>
         </div>
 
-        {/* Mensaje de Error si falla login */}
+        {/* Banner de Error Estilo Vercel */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-xs p-3 rounded-xl flex items-center gap-2">
-            <span>⚠️</span>
-            <span>{error}</span>
+          <div className="bg-red-500/10 border border-red-500/30 text-red-200 text-xs p-3.5 rounded-2xl flex items-center gap-3 animate-scale-up">
+            <span className="text-base">⚠️</span>
+            <span className="font-medium">{error}</span>
           </div>
         )}
 
-        {/* Formulario de Inicio de Sesión */}
+        {/* Formulario Estilizado con Foco Luminous */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider block">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
               Correo Electrónico
             </label>
             <input
@@ -59,12 +65,12 @@ export const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ej: admin@yape.com o bodega@prueba.com"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-yape transition-colors"
+              className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider block">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
               Contraseña
             </label>
             <input
@@ -73,14 +79,14 @@ export const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-yape transition-colors"
+              className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-yape to-yape-light hover:from-yape-light hover:to-yape text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-yape/25 transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full mt-2 bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-purple-500/30 transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
           >
             {loading ? (
               <>
@@ -90,43 +96,58 @@ export const LoginPage = () => {
             ) : (
               <>
                 <span>🔐</span>
-                <span>Entrar al Sistema</span>
+                <span>Entrar a la Plataforma</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Accesos Rápidos - Modo Demo */}
+        {/* Tarjetas Interactivas - Modo Demo */}
         <div className="border-t border-white/10 pt-6 space-y-3">
-          <p className="text-xs font-semibold text-center text-gray-400 uppercase tracking-wider">
-            ⚡ Accesos Rápidos de Prueba (Modo Demo)
-          </p>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              ⚡ Accesos de Prueba (Demo)
+            </span>
+            <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full font-semibold">
+              Clic para rellenar
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2.5">
             <button
               type="button"
               onClick={() => fillDemo('admin@yape.com', 'admin123')}
-              className="w-full bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-between"
+              className="w-full group bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/40 text-purple-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-between hover:scale-[1.01] active:scale-[0.99]"
             >
-              <span>👑 Super Administrador (Tú)</span>
-              <span className="text-gray-400 font-normal">admin@yape.com</span>
+              <span className="flex items-center gap-2 font-bold">
+                <span className="text-base">👑</span>
+                <span>Super Administrador (SaaS Owner)</span>
+              </span>
+              <span className="text-gray-400 font-mono text-[11px] group-hover:text-purple-300 transition-colors">admin@yape.com</span>
             </button>
 
             <button
               type="button"
               onClick={() => fillDemo('bodega@prueba.com', '123456')}
-              className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-between"
+              className="w-full group bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-between hover:scale-[1.01] active:scale-[0.99]"
             >
-              <span>🏪 Mi Bodega VIP (Tenant 1)</span>
-              <span className="text-gray-400 font-normal">bodega@...</span>
+              <span className="flex items-center gap-2 font-bold">
+                <span className="text-base">🏪</span>
+                <span>Mi Bodega VIP (Cliente 1)</span>
+              </span>
+              <span className="text-gray-400 font-mono text-[11px] group-hover:text-emerald-300 transition-colors">bodega@...</span>
             </button>
 
             <button
               type="button"
               onClick={() => fillDemo('farmacia@prueba.com', '123456')}
-              className="w-full bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-between"
+              className="w-full group bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 hover:border-sky-500/40 text-sky-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-between hover:scale-[1.01] active:scale-[0.99]"
             >
-              <span>💊 Farmacia VIP 24/7 (Tenant 2)</span>
-              <span className="text-gray-400 font-normal">farmacia@...</span>
+              <span className="flex items-center gap-2 font-bold">
+                <span className="text-base">💊</span>
+                <span>Farmacia VIP 24/7 (Cliente 2)</span>
+              </span>
+              <span className="text-gray-400 font-mono text-[11px] group-hover:text-sky-300 transition-colors">farmacia@...</span>
             </button>
           </div>
         </div>
