@@ -2,6 +2,8 @@
 
 namespace App;
 
+date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? 'America/Lima');
+
 class Config {
     const DEFAULT_TENANT_ID = 1;
 
