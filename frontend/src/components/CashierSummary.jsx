@@ -7,76 +7,70 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
   const countTest = summary?.count_test || 0;
 
   return (
-    <div className="mb-8 space-y-5 animate-fade-in-up">
+    <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {/* Tarjeta Principal: Recaudación Real del Día */}
-        <div className="glass-card rounded-3xl p-7 border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-black/40 to-black/60 shadow-xl flex items-center justify-between group">
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400/90 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        {/* Recaudación Real - Sobria Corporativa */}
+        <div className="saas-card rounded-2xl p-6 border border-[#1E2030] flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
               <span>Recaudación Real (Hoy)</span>
             </span>
-            <div className="text-4xl sm:text-5xl font-mono font-black text-white tracking-tight drop-shadow-md group-hover:text-emerald-200 transition-colors">
+            <div className="text-4xl font-mono font-bold text-white tracking-tight">
               S/ {totalReal.toFixed(2)}
             </div>
-            <p className="text-xs text-gray-400 font-medium">
-              <strong className="text-emerald-300 font-mono font-bold">{countReal}</strong> transacci{countReal === 1 ? 'ón' : 'ones'} reales validadas
+            <p className="text-xs text-gray-500">
+              <strong className="text-gray-300 font-mono">{countReal}</strong> transacciones verificadas
             </p>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl shadow-inner group-hover:scale-105 transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-[#131420] border border-[#212436] flex items-center justify-center text-xl">
             💵
           </div>
         </div>
 
-        {/* Tarjeta de Pruebas (Solo en Modo Demo) */}
+        {/* Modo Test - Sobrio Corporativo */}
         {isDemoMode && (
-          <div className={`glass-card rounded-3xl p-7 border transition-all duration-300 flex items-center justify-between group ${
-            includeTests 
-              ? 'border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-black/40 to-black/60 shadow-xl' 
-              : 'border-white/10 opacity-70 hover:opacity-100'
-          }`}>
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400/90 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>Simulaciones (Modo Test)</span>
+          <div className={`saas-card rounded-2xl p-6 border transition-all ${
+            includeTests ? 'border-[#2D3047]' : 'border-[#171926] opacity-60'
+          } flex items-center justify-between`}>
+            <div className="space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                <span>Modo Test (Simulado)</span>
               </span>
-              <div className="text-4xl sm:text-5xl font-mono font-black text-amber-300 tracking-tight drop-shadow-md group-hover:text-amber-200 transition-colors">
+              <div className="text-4xl font-mono font-bold text-gray-200 tracking-tight">
                 S/ {totalTest.toFixed(2)}
               </div>
-              <p className="text-xs text-gray-400 font-medium">
-                <strong className="text-amber-300 font-mono font-bold">{countTest}</strong> prueba{countTest === 1 ? '' : 's'} de simulación
+              <p className="text-xs text-gray-500">
+                <strong className="text-gray-300 font-mono">{countTest}</strong> pruebas de simulación
               </p>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl shadow-inner group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-xl bg-[#131420] border border-[#212436] flex items-center justify-center text-xl">
               ⚡
             </div>
           </div>
         )}
       </div>
 
-      {/* Acciones: Botón de Cierre de Caja e Interruptor de Pruebas */}
-      <div className="flex flex-wrap justify-between items-center gap-4 px-1">
+      {/* Acciones del Resumen */}
+      <div className="flex flex-wrap justify-between items-center gap-4 pt-1">
         <button
           type="button"
           onClick={onOpenCloseModal}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold px-5 py-3 rounded-2xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+          className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2"
         >
-          <span>📋</span>
-          <span>Reporte y Cierre de Caja</span>
+          <span>📊</span>
+          <span>Generar Reporte de Cierre</span>
         </button>
 
         {isDemoMode && (
           <button
             type="button"
             onClick={() => onToggleTests(!includeTests)}
-            className={`text-xs font-bold px-4 py-2.5 rounded-2xl border transition-all flex items-center gap-2 ${
-              includeTests 
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm' 
-                : 'bg-white/[0.05] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]'
-            }`}
+            className="text-xs font-medium px-3.5 py-2 rounded-xl bg-[#11121C] hover:bg-[#181A29] text-gray-400 hover:text-white border border-[#1D2030] transition-colors flex items-center gap-2"
           >
-            <span className={`w-2 h-2 rounded-full ${includeTests ? 'bg-amber-400 animate-pulse' : 'bg-gray-500'}`}></span>
-            <span>{includeTests ? 'Mostrando simulaciones de prueba' : 'Simulaciones ocultas en tabla'}</span>
+            <span className={`w-1.5 h-1.5 rounded-full ${includeTests ? 'bg-purple-400' : 'bg-gray-600'}`}></span>
+            <span>{includeTests ? 'Simulaciones visibles en historial' : 'Simulaciones ocultas'}</span>
           </button>
         )}
       </div>

@@ -6,6 +6,7 @@ export const SuperAdminDashboard = () => {
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('general'); // general | comercios
 
   // Formulario de Nueva Tienda
   const [formName, setFormName] = useState('');
@@ -92,222 +93,293 @@ export const SuperAdminDashboard = () => {
   const totalVolume = tenants.reduce((acc, t) => acc + (parseFloat(t.total_real) || 0), 0);
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8 space-y-8 animate-fade-in-up">
-      {/* Barra superior del Super Admin estilo Vercel / Linear */}
-      <header className="flex flex-wrap items-center justify-between gap-6 glass rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 via-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/40 text-2xl glow-yape">
-            👑
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-white tracking-tight">Panel Super Admin SaaS</h1>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
-                SaaS Owner
-              </span>
+    <div className="min-h-screen bg-[#08090E] flex flex-col md:flex-row text-gray-100">
+      {/* SIDEBAR PROFESIONAL FIJO / ADAPTABLE */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#171926] p-5 shrink-0">
+        <div className="space-y-8">
+          {/* Brand */}
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-9 h-9 bg-[#8B5CF6] rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+              Y
             </div>
-            <p className="text-xs text-gray-400 mt-1 font-medium">Sesión activa: <span className="text-gray-300 font-mono">{user?.email}</span> — Control multi-comercio</p>
+            <div>
+              <span className="font-bold text-white tracking-tight block text-sm">Yape POS SaaS</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider block">Super Admin Panel</span>
+            </div>
           </div>
+
+          {/* Nav */}
+          <nav className="space-y-1">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">Navegación Principal</p>
+            
+            <button
+              onClick={() => setActiveTab('general')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'general'
+                  ? 'bg-[#8B5CF6] text-white shadow-sm'
+                  : 'text-gray-400 hover:text-white hover:bg-[#12141F]'
+              }`}
+            >
+              <span>📊</span>
+              <span>Vista General</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('comercios')}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'comercios'
+                  ? 'bg-[#8B5CF6] text-white shadow-sm'
+                  : 'text-gray-400 hover:text-white hover:bg-[#12141F]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span>🏪</span>
+                <span>Directorio de Tiendas</span>
+              </div>
+              <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px]">{totalStores}</span>
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
+            >
+              <span>➕</span>
+              <span>Alta de Comercio</span>
+            </button>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-3 relative z-10">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <span>➕</span> Registrar Comercio
-          </button>
+        {/* Perfil del Usuario en Sidebar */}
+        <div className="pt-6 border-t border-[#171926] mt-6 space-y-3">
+          <div className="px-2">
+            <p className="text-xs font-bold text-white truncate">{user?.email}</p>
+            <p className="text-[10px] text-purple-400 font-mono">Rol: SaaS Owner</p>
+          </div>
 
           <button
             onClick={logout}
-            className="bg-white/[0.06] hover:bg-red-500/20 hover:text-red-300 text-gray-300 border border-white/10 text-xs font-semibold px-4 py-3 rounded-xl transition-all flex items-center gap-2"
+            className="w-full bg-[#11121C] hover:bg-red-500/10 hover:text-red-400 text-gray-400 border border-[#1D2030] text-xs font-medium py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
-            <span>🚪</span> Cerrar Sesión
+            <span>🚪</span>
+            <span>Cerrar Sesión</span>
           </button>
         </div>
-      </header>
+      </aside>
 
-      {/* KPI Cards de alta jerarquía tipográfica */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="glass-card rounded-3xl p-6 border border-white/10 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tiendas Registradas</p>
-            <p className="text-3xl font-mono font-black text-white mt-1.5">{totalStores}</p>
+      {/* ÁREA PRINCIPAL DE CONTENIDO A PANTALLA COMPLETA */}
+      <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
+        {/* Topbar Sobrio */}
+        <header className="h-16 border-b border-[#171926] px-6 sm:px-8 flex items-center justify-between bg-[#0A0B12]/80 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-gray-400">Panel Administrativo</span>
+            <span className="text-gray-600">/</span>
+            <span className="text-xs font-bold text-white capitalize">{activeTab === 'general' ? 'Vista General & KPIs' : 'Gestión de Tiendas'}</span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-2xl">
-            🏪
-          </div>
-        </div>
 
-        <div className="glass-card rounded-3xl p-6 border border-white/10 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Comercios Activos</p>
-            <p className="text-3xl font-mono font-black text-emerald-300 mt-1.5">{activeStores}</p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-2"
+            >
+              <span>➕</span>
+              <span>Registrar Tienda</span>
+            </button>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl">
-            🟢
-          </div>
-        </div>
+        </header>
 
-        <div className="glass-card rounded-3xl p-6 border border-white/10 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-purple-300 uppercase tracking-wider">Volumen Real SaaS</p>
-            <p className="text-3xl font-mono font-black text-white mt-1.5">S/ {totalVolume.toFixed(2)}</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-2xl">
-            💰
-          </div>
-        </div>
-      </div>
+        {/* Contenido Adaptable */}
+        <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
+          {/* Banner de Estado del SaaS */}
+          <div className="saas-card rounded-2xl p-6 sm:p-8 border border-[#1E2030] flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Estado Operativo de la Plataforma
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">
+                Monitoreo consolidado de cobros validados y comercios activos
+              </p>
+            </div>
 
-      {/* Tabla Oficial de Tenants Estilo Stripe / Linear */}
-      <section className="glass rounded-3xl p-7 border border-white/10 shadow-2xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <span>📋</span> Directorio de Comercios en la Plataforma
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5">Audita cajas en tiempo real o administra el estado de los clientes</p>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3.5 py-1.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Sistemas Yape POS en Línea
+              </span>
+            </div>
           </div>
-          <button
-            onClick={fetchTenants}
-            className="text-xs font-semibold text-gray-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] px-3.5 py-2 rounded-xl border border-white/10 transition-colors flex items-center gap-2"
-          >
-            <span>↻</span> Actualizar Lista
-          </button>
-        </div>
 
-        {loading ? (
-          <div className="text-center py-16 text-gray-400 font-medium">Cargando comercios registrados...</div>
-        ) : tenants.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">No hay tiendas registradas aún en el sistema.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="py-3.5 px-4">ID</th>
-                  <th className="py-3.5 px-4">Comercio</th>
-                  <th className="py-3.5 px-4">Correo</th>
-                  <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right">Recaudado (Real)</th>
-                  <th className="py-3.5 px-4 text-center">Auditoría / Estado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {tenants.map((t) => (
-                  <tr key={t.id} className="hover:bg-white/[0.04] transition-colors group">
-                    <td className="py-4 px-4 font-mono text-xs text-gray-500">#{t.id}</td>
-                    <td className="py-4 px-4 font-bold text-white group-hover:text-purple-300 transition-colors">{t.nombre_negocio}</td>
-                    <td className="py-4 px-4 text-gray-400 font-mono text-xs">{t.email}</td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full border ${
-                        t.estado === 'Activo' 
-                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' 
-                          : 'bg-red-500/15 text-red-300 border-red-500/30'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${t.estado === 'Activo' ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`}></span>
-                        {t.estado}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-right font-mono font-bold text-white text-base">
-                      S/ {parseFloat(t.total_real || 0).toFixed(2)}
-                    </td>
-                    <td className="py-4 px-4 text-center space-x-2">
-                      <button
-                        onClick={() => setViewingTenant(t)}
-                        className="bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white border border-purple-500/40 text-xs font-bold px-3.5 py-1.5 rounded-xl transition-all inline-flex items-center gap-1.5 hover:shadow-lg hover:shadow-purple-500/25"
-                        title="Ver y Auditar la Caja en vivo"
-                      >
-                        <span>👀</span> Auditar Caja
-                      </button>
-
-                      <button
-                        onClick={() => handleToggleStatus(t.id, t.estado)}
-                        className={`text-xs font-bold px-3.5 py-1.5 rounded-xl border transition-all ${
-                          t.estado === 'Activo'
-                            ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30'
-                            : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30'
-                        }`}
-                      >
-                        {t.estado === 'Activo' ? '⏸️ Suspender' : '▶️ Activar'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      {/* Modal Nueva Tienda Estilo Vercel */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in-up">
-          <div className="glass w-full max-w-md rounded-3xl p-7 border border-white/20 shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <span>➕</span> Dar de Alta Nuevo Comercio
-                </h3>
-                <p className="text-xs text-gray-400 mt-0.5">Genera acceso y token de API para la tienda</p>
+          {/* Tarjetas KPI Monocromáticas de Alta Densidad */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="saas-card-hover rounded-2xl p-6 border border-[#1E2030] space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tiendas Registradas</p>
+              <div className="flex items-baseline justify-between">
+                <span className="text-3xl font-mono font-bold text-white">{totalStores}</span>
+                <span className="text-xs text-gray-500">100% plataforma</span>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div className="saas-card-hover rounded-2xl p-6 border border-[#1E2030] space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Comercios Activos</p>
+              <div className="flex items-baseline justify-between">
+                <span className="text-3xl font-mono font-bold text-white">{activeStores}</span>
+                <span className="text-xs text-emerald-400 font-medium">Operativos</span>
+              </div>
+            </div>
+
+            <div className="saas-card-hover rounded-2xl p-6 border border-[#1E2030] space-y-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Volumen Real Procesado</p>
+              <div className="flex items-baseline justify-between">
+                <span className="text-3xl font-mono font-bold text-white">S/ {totalVolume.toFixed(2)}</span>
+                <span className="text-xs text-purple-400 font-medium">PEN</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabla Empresarial Sobria de Comercios */}
+          <div className="saas-card rounded-2xl border border-[#1E2030] overflow-hidden">
+            <div className="p-5 border-b border-[#1E2030] flex flex-wrap items-center justify-between gap-4 bg-[#0A0B12]">
+              <div>
+                <h3 className="text-sm font-bold text-white">Directorio de Cajas Registradas</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Audita o controla las sesiones del cliente en tiempo real</p>
+              </div>
+              <button
+                onClick={fetchTenants}
+                className="text-xs font-medium text-gray-400 hover:text-white bg-[#131522] hover:bg-[#1A1D2E] px-3.5 py-1.5 rounded-xl border border-[#212538] transition-colors"
+              >
+                Actualizar Lista
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="p-12 text-center text-xs text-gray-400">Cargando datos de comercios...</div>
+            ) : tenants.length === 0 ? (
+              <div className="p-12 text-center text-xs text-gray-500">No hay tiendas registradas aún en el sistema.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#0A0B12] border-b border-[#1E2030] text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-6">ID</th>
+                      <th className="py-3.5 px-6">Comercio / Negocio</th>
+                      <th className="py-3.5 px-6">Correo de Acceso</th>
+                      <th className="py-3.5 px-6">Estado</th>
+                      <th className="py-3.5 px-6 text-right">Recaudado (PEN)</th>
+                      <th className="py-3.5 px-6 text-center">Auditoría / Gestión</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#171926]">
+                    {tenants.map((t) => (
+                      <tr key={t.id} className="hover:bg-[#10121C] transition-colors">
+                        <td className="py-4 px-6 font-mono text-gray-500">#{t.id}</td>
+                        <td className="py-4 px-6 font-bold text-white">{t.nombre_negocio}</td>
+                        <td className="py-4 px-6 font-mono text-gray-400">{t.email}</td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium ${
+                            t.estado === 'Activo'
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${t.estado === 'Activo' ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
+                            {t.estado}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-right font-mono font-bold text-white text-sm">
+                          S/ {parseFloat(t.total_real || 0).toFixed(2)}
+                        </td>
+                        <td className="py-4 px-6 text-center space-x-2">
+                          <button
+                            onClick={() => setViewingTenant(t)}
+                            className="bg-[#181928] hover:bg-[#8B5CF6] text-gray-200 hover:text-white border border-[#26283D] hover:border-[#8B5CF6] text-xs font-medium px-3.5 py-1.5 rounded-xl transition-all inline-flex items-center gap-1.5"
+                            title="Auditar y ver la caja del cliente en vivo"
+                          >
+                            <span>👀</span>
+                            <span>Auditar Caja</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleToggleStatus(t.id, t.estado)}
+                            className={`text-xs font-medium px-3 py-1.5 rounded-xl border transition-all ${
+                              t.estado === 'Activo'
+                                ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/20'
+                                : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                            }`}
+                          >
+                            {t.estado === 'Activo' ? 'Suspender' : 'Activar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Modal de Nuevo Comercio Sobrio */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md saas-card rounded-2xl p-7 border border-[#1E2030] space-y-6">
+            <div className="flex items-center justify-between border-b border-[#1E2030] pb-4">
+              <div>
+                <h3 className="text-sm font-bold text-white">Alta de Nuevo Comercio</h3>
+                <p className="text-xs text-gray-400">Crea acceso de cliente y token en el SaaS</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white">✕</button>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-xs p-3.5 rounded-xl">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-300 text-xs p-3 rounded-xl">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleCreateTenant} className="space-y-4">
               <div>
-                <label className="text-[11px] font-bold text-gray-300 uppercase block mb-1">Nombre de la Tienda</label>
+                <label className="text-xs font-semibold text-gray-300 block mb-1">Nombre de la Tienda</label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  placeholder="ej: Super Bodega Central"
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none"
+                  placeholder="ej: Bodega Central"
+                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-gray-300 uppercase block mb-1">Correo de Acceso (Login)</label>
+                <label className="text-xs font-semibold text-gray-300 block mb-1">Correo de Acceso</label>
                 <input
                   type="email"
                   required
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
-                  placeholder="ej: tienda@comercio.com"
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none"
+                  placeholder="tienda@comercio.com"
+                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-gray-300 uppercase block mb-1">Contraseña Inicial</label>
+                <label className="text-xs font-semibold text-gray-300 block mb-1">Contraseña Inicial</label>
                 <input
                   type="text"
                   required
                   value={formPass}
                   onChange={(e) => setFormPass(e.target.value)}
                   placeholder="123456"
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none"
+                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-gray-300 uppercase block mb-1">Correo Notificación Yape (Opcional)</label>
+                <label className="text-xs font-semibold text-gray-300 block mb-1">Correo Notificación Yape (Opcional)</label>
                 <input
                   type="email"
                   value={formCorreoYape}
                   onChange={(e) => setFormCorreoYape(e.target.value)}
-                  placeholder="ej: pagos@comercio.com"
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none"
+                  placeholder="pagos@comercio.com"
+                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm"
                 />
               </div>
 
@@ -315,16 +387,16 @@ export const SuperAdminDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 rounded-xl text-sm transition-colors"
+                  className="flex-1 bg-[#131420] hover:bg-[#1C1E2F] text-gray-300 font-medium py-2.5 rounded-xl text-xs transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all"
+                  className="flex-1 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold py-2.5 rounded-xl text-xs disabled:opacity-50 transition-all"
                 >
-                  {creating ? 'Creando...' : 'Registrar Comercio'}
+                  {creating ? 'Creando...' : 'Registrar'}
                 </button>
               </div>
             </form>

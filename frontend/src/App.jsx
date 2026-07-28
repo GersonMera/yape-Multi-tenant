@@ -11,7 +11,6 @@ import { SuperAdminDashboard } from './components/SuperAdminDashboard';
 function App() {
   const { user, token, loading, logout, viewingTenant, setViewingTenant } = useAuth();
 
-  // Determinamos el tenant activo: inspeccionado (Super Admin), o propio (Tenant), o 1 por defecto
   const activeTenantId = viewingTenant?.id || user?.tenant_id || 1;
   const tenantId = activeTenantId;
 
@@ -28,18 +27,16 @@ function App() {
 
   const isDemoMode = import.meta.env.VITE_MODE === 'demo';
 
-  // Callback sincronizado para nuevos pagos recibidos por WebSocket
   const handleNewYape = useCallback((newTx) => {
     if (audioRef.current) {
       audioRef.current.play().catch(e => {
-        console.warn("Navegador bloqueó el Autoplay del sonido. Haz clic en la pantalla una vez para habilitarlo.");
+        console.warn("Navegador bloqueó el Autoplay del sonido.");
       });
     }
 
     const isTest = Boolean(newTx.is_test);
     const montoNum = parseFloat(newTx.monto) || 0;
 
-    // Actualizamos el resumen del día en vivo
     setSummary(prev => ({
       ...prev,
       total_real: !isTest ? prev.total_real + montoNum : prev.total_real,
@@ -48,7 +45,6 @@ function App() {
       count_test: isTest ? prev.count_test + 1 : prev.count_test,
     }));
 
-    // Si es una transacción real, siempre se añade; si es test, solo si includeTests está activo
     setTransactions(prev => {
       if (!isTest || includeTests) {
         return [newTx, ...prev];
@@ -57,10 +53,8 @@ function App() {
     });
   }, [includeTests]);
 
-  // Suscripción en vivo al canal del tenant activo
   usePusher(tenantId, handleNewYape);
 
-  // Obtener datos seguros del tenant desde el backend
   useEffect(() => {
     const fetchTenant = async () => {
       try {
@@ -84,7 +78,6 @@ function App() {
     }
   }, [token, activeTenantId, user]);
 
-  // Cargar historial persistente del día desde MySQL
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -130,127 +123,179 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white font-semibold">
+      <div className="min-h-screen bg-[#08090E] flex items-center justify-center text-white font-semibold">
         <div className="flex items-center gap-3">
-          <span className="animate-spin text-2xl">↻</span>
+          <span className="animate-spin text-xl">↻</span>
           <span>Cargando Yape POS SaaS...</span>
         </div>
       </div>
     );
   }
 
-  // Si no ha iniciado sesión, mostrar pantalla de Login
   if (!user) {
     return <LoginPage />;
   }
 
-  // Si es Super Admin y no está auditando una caja en particular, mostrar Panel SaaS
   if (user.rol === 'admin' && !viewingTenant) {
     return <SuperAdminDashboard />;
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
+    <div className="min-h-screen bg-[#08090E] flex flex-col md:flex-row text-gray-100">
       <audio ref={audioRef} src="/sounds/yape_alert.mp3" preload="auto"></audio>
 
-      {/* Banner especial si el Super Admin está inspeccionando esta caja */}
-      {viewingTenant && (
-        <div className="bg-gradient-to-r from-purple-900/90 to-indigo-900/90 text-purple-100 px-5 py-3 rounded-2xl mb-6 flex items-center justify-between text-xs font-bold border border-purple-500/30 shadow-lg animate-fade-in">
-          <div className="flex items-center gap-2">
-            <span className="text-base">👑</span>
-            <span>Modo Auditoría Super Admin — Viendo la Caja de: <strong className="text-white underline">{viewingTenant.nombre_negocio}</strong></span>
+      {/* SIDEBAR DE CAJA / POS EMPRESARIAL */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#171926] p-5 shrink-0">
+        <div className="space-y-8">
+          {/* Brand & Store */}
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-9 h-9 bg-[#8B5CF6] rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+              Y
+            </div>
+            <div className="overflow-hidden">
+              <span className="font-bold text-white tracking-tight block text-sm truncate">
+                {tenant?.nombre_negocio || user?.nombre_negocio || 'Mi Comercio'}
+              </span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider block">Yape POS Cajero</span>
+            </div>
           </div>
-          <button
-            onClick={() => setViewingTenant(null)}
-            className="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl border border-white/20 transition-colors"
-          >
-            ⬅ Volver al Panel Admin
-          </button>
-        </div>
-      )}
 
-      {/* Barra superior multi-rol */}
-      <nav className="mb-8 flex flex-wrap items-center justify-between gap-4 glass rounded-2xl p-4 border border-white/10 shadow-lg">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-300">
-            {tenant?.nombre_negocio || user?.nombre_negocio} <span className="text-gray-500">({user?.email})</span>
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setIsCloseModalOpen(true)}
-            className="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5"
-          >
-            <span>📊</span> Cierre de Caja
-          </button>
-
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all border border-white/10 flex items-center gap-1.5"
-          >
-            <span>🏢</span> Credenciales
-          </button>
-
-          {isDemoMode && (
+          {/* Nav en el Sidebar */}
+          <nav className="space-y-1.5">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">
+              Módulos de Caja
+            </p>
+            
             <button
-              onClick={handleSimulate}
-              disabled={simulating}
-              className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 disabled:opacity-50"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#8B5CF6] text-white shadow-sm"
             >
-              <span>⚡</span> {simulating ? 'Simulando...' : 'Simular Yape (S/ 15.50)'}
+              <span>⚡</span>
+              <span>Recepción en Vivo</span>
             </button>
-          )}
+
+            <button
+              onClick={() => setIsCloseModalOpen(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
+            >
+              <span>📊</span>
+              <span>Cierre de Caja (Hoy)</span>
+            </button>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
+            >
+              <span>🏢</span>
+              <span>Credenciales & API</span>
+            </button>
+
+            {isDemoMode && (
+              <button
+                onClick={handleSimulate}
+                disabled={simulating}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-purple-400 hover:text-white hover:bg-[#12141F] transition-all disabled:opacity-50 mt-2 border border-purple-500/20"
+              >
+                <span>⚡</span>
+                <span>{simulating ? 'Simulando...' : 'Simular Yape (S/ 15.50)'}</span>
+              </button>
+            )}
+          </nav>
+        </div>
+
+        {/* Perfil / Sesión en el Sidebar */}
+        <div className="pt-6 border-t border-[#171926] mt-6 space-y-3">
+          <div className="px-2">
+            <p className="text-xs font-bold text-white truncate">{user?.email}</p>
+            <p className="text-[10px] text-gray-500 font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio'}</p>
+          </div>
 
           <button
             onClick={logout}
-            className="bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 text-xs font-semibold px-3 py-2 rounded-xl transition-colors flex items-center gap-1 ml-1"
-            title="Cerrar Sesión"
+            className="w-full bg-[#11121C] hover:bg-red-500/10 hover:text-red-400 text-gray-400 border border-[#1D2030] text-xs font-medium py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
-            <span>🚪</span> Salir
+            <span>🚪</span>
+            <span>Cerrar Sesión</span>
           </button>
         </div>
-      </nav>
+      </aside>
 
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-black mb-2 bg-gradient-to-r from-yape to-yape-light text-transparent bg-clip-text drop-shadow-sm">
-          {tenant?.nombre_negocio || 'Panel de Caja'}
-        </h1>
-        <p className="text-gray-400 font-medium">Validación de pagos en tiempo real</p>
-      </header>
-
-      {/* Resumen del Día y Toggle de Pruebas */}
-      <CashierSummary 
-        summary={summary} 
-        includeTests={includeTests} 
-        onToggleTests={setIncludeTests} 
-        isDemoMode={isDemoMode}
-        onOpenCloseModal={() => setIsCloseModalOpen(true)}
-      />
-
-      <main>
-        {transactions.length === 0 ? (
-          <div className="text-center py-20 glass rounded-3xl border-dashed border border-white/20 shadow-2xl">
-            <div className="w-20 h-20 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-fast shadow-inner border border-white/5">
-              <span className="text-3xl">👀</span>
+      {/* ÁREA PRINCIPAL FULL-SCREEN */}
+      <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
+        {/* Banner de Auditoría del Super Admin */}
+        {viewingTenant && (
+          <div className="bg-[#1C1236] border-b border-[#362269] text-purple-200 px-6 py-3 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span>👑</span>
+              <span>Modo Auditoría Super Admin — Viendo la Caja de: <strong className="text-white underline">{viewingTenant.nombre_negocio}</strong></span>
             </div>
-            <h2 className="text-2xl font-semibold text-gray-200 tracking-tight">
-              {includeTests ? 'Sin pagos ni pruebas en el día de hoy' : 'Esperando el primer Yape real del día...'}
-            </h2>
-            <p className="text-gray-400 mt-2">Los pagos validados aparecerán aquí mágicamente</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-4 mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">
-              <span>Historial del Día (Hoy)</span>
-              <span className="bg-yape/20 text-yape-light px-3 py-1 rounded-full">{transactions.length}</span>
-            </div>
-            
-            {transactions.map(yape => (
-              <YapeCard key={yape.id} yape={yape} />
-            ))}
+            <button
+              onClick={() => setViewingTenant(null)}
+              className="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-lg transition-colors"
+            >
+              Volver al Panel Admin
+            </button>
           </div>
         )}
+
+        {/* Header Principal de Caja */}
+        <header className="h-16 border-b border-[#171926] px-6 sm:px-10 flex items-center justify-between bg-[#0A0B12]/80 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-gray-400">Terminal POS</span>
+            <span className="text-gray-600">/</span>
+            <span className="text-xs font-bold text-white">{tenant?.nombre_negocio || 'Caja Principal'}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              En Espera de Yapes
+            </span>
+          </div>
+        </header>
+
+        {/* Contenido Completo del POS */}
+        <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
+          {/* Resumen Contable Sobrio */}
+          <CashierSummary 
+            summary={summary} 
+            includeTests={includeTests} 
+            onToggleTests={setIncludeTests} 
+            isDemoMode={isDemoMode}
+            onOpenCloseModal={() => setIsCloseModalOpen(true)}
+          />
+
+          {/* Historial en Vivo */}
+          <section className="space-y-4">
+            <div className="flex justify-between items-center border-b border-[#171926] pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Historial de Recaudación (Hoy)
+                </h3>
+                <p className="text-xs text-gray-400">Transacciones entrantes verificadas en tiempo real</p>
+              </div>
+              <span className="bg-[#121420] text-purple-400 text-xs font-mono font-bold px-3 py-1 rounded-lg border border-[#212436]">
+                {transactions.length} pagos
+              </span>
+            </div>
+
+            {transactions.length === 0 ? (
+              <div className="saas-card rounded-2xl py-16 text-center border-dashed border-[#1E2030]">
+                <p className="text-sm font-semibold text-gray-300">
+                  {includeTests ? 'Sin cobros ni pruebas registrados hoy' : 'Esperando el primer Yape real del día...'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Los pagos validados por MacroDroid aparecerán en esta lista al instante
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {transactions.map(yape => (
+                  <YapeCard key={yape.id} yape={yape} />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </main>
 
       <TenantModal
