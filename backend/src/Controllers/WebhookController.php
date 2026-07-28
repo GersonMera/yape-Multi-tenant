@@ -120,8 +120,8 @@ class WebhookController {
             // Usamos INSERT IGNORE para aprovechar el índice UNIQUE. 
             // Si MacroDroid manda 2 veces el mismo JSON por mala red, el 2do intento será ignorado.
             $sql = "INSERT IGNORE INTO transacciones_yape 
-                    (tenant_id, monto, remitente_nombre, fecha_hora_yape) 
-                    VALUES (:tenant_id, :monto, :remitente, :fecha_hora)";
+                    (tenant_id, monto, remitente_nombre, fecha_hora_yape, is_test) 
+                    VALUES (:tenant_id, :monto, :remitente, :fecha_hora, 0)";
             
             $insertStmt = $this->pdo->prepare($sql);
             $insertStmt->execute([
@@ -138,7 +138,8 @@ class WebhookController {
                 $payload = [
                     'monto' => $monto,
                     'remitente' => $remitente,
-                    'fecha_hora' => $fecha_hora
+                    'fecha_hora' => $fecha_hora,
+                    'is_test' => false
                 ];
                 
                 $this->pusher->trigger($canal, $evento, $payload);

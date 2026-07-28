@@ -8,7 +8,14 @@ export const YapeCard = ({ yape }) => {
           Y
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white tracking-wide">{yape.remitente}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-xl font-bold text-white tracking-wide">{yape.remitente}</h3>
+            {yape.is_test && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-400/30 tracking-wider">
+                🧪 PRUEBA
+              </span>
+            )}
+          </div>
           <p className="text-gray-400 text-sm font-medium">
             {new Date(yape.fecha_hora).toLocaleTimeString()} - Pago Validado
           </p>

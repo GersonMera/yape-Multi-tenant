@@ -38,8 +38,10 @@ CREATE TABLE IF NOT EXISTS transacciones_yape (
     monto DECIMAL(10, 2) NOT NULL,
     remitente_nombre VARCHAR(255) NOT NULL,
     fecha_hora_yape DATETIME NOT NULL,
+    is_test TINYINT(1) DEFAULT 0 NOT NULL,
     procesado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    INDEX idx_is_test (is_test),
     UNIQUE KEY unique_pago (tenant_id, remitente_nombre, monto, fecha_hora_yape)
 );
 
