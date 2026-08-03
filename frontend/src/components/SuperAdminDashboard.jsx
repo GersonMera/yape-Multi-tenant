@@ -93,18 +93,20 @@ export const SuperAdminDashboard = () => {
   const totalVolume = tenants.reduce((acc, t) => acc + (parseFloat(t.total_real) || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#08090E] flex flex-col md:flex-row text-gray-100">
-      {/* SIDEBAR PROFESIONAL FIJO / ADAPTABLE */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#171926] p-5 shrink-0">
-        <div className="space-y-8">
+    <div className="min-h-screen bg-[#170A24] flex flex-col md:flex-row text-gray-100 selection:bg-purple-500 selection:text-white">
+      {/* SIDEBAR CORPORATIVO YAPE COMMAND CENTER */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-purple-500/25 p-5 shrink-0">
+        <div className="space-y-7">
           {/* Brand */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 bg-[#8B5CF6] rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+          <div className="flex items-center gap-3.5 px-2">
+            <div className="w-11 h-11 bg-gradient-to-br from-[#8B2FE5] to-[#661DAB] rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-600/40 border border-purple-400/30">
               Y
             </div>
             <div>
-              <span className="font-bold text-white tracking-tight block text-sm">Yape POS SaaS</span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider block">Super Admin Panel</span>
+              <span className="font-extrabold text-white tracking-tight block text-sm">Yape POS SaaS</span>
+              <span className="text-[10px] text-[#00E3A5] font-mono font-bold uppercase tracking-widest block mt-0.5">
+                👑 SUPER ADMIN
+              </span>
             </div>
           </div>
 

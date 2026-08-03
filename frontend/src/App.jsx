@@ -294,72 +294,74 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#08090E] flex flex-col md:flex-row text-gray-100">
+    <div className="min-h-screen bg-[#170A24] flex flex-col md:flex-row text-gray-100 selection:bg-purple-500 selection:text-white">
       <audio ref={audioRef} src="/sounds/yape_alert.mp3" preload="auto"></audio>
 
-      {/* SIDEBAR DE CAJA / POS EMPRESARIAL */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#171926] p-5 shrink-0">
-        <div className="space-y-8">
+      {/* SIDEBAR CORPORATIVO YAPE COMMAND CENTER */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-purple-500/25 p-5 shrink-0">
+        <div className="space-y-7">
           {/* Brand & Store */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 bg-[#8B5CF6] rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+          <div className="flex items-center gap-3.5 px-2">
+            <div className="w-11 h-11 bg-gradient-to-br from-[#8B2FE5] to-[#661DAB] rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-600/40 border border-purple-400/30">
               Y
             </div>
             <div className="overflow-hidden">
-              <span className="font-bold text-white tracking-tight block text-sm truncate">
+              <span className="font-extrabold text-white tracking-tight block text-sm truncate">
                 {tenant?.nombre_negocio || user?.nombre_negocio || 'Mi Comercio'}
               </span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider block">Yape POS Cajero</span>
+              <span className="text-[10px] text-[#00E3A5] font-mono font-bold uppercase tracking-widest block mt-0.5">
+                💜 YAPE POS CONTROL
+              </span>
             </div>
           </div>
 
           {/* Nav en el Sidebar */}
-          <nav className="space-y-1.5">
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">
+          <nav className="space-y-2">
+            <p className="text-[10px] font-black text-purple-300/60 uppercase tracking-widest px-3 mb-2">
               Módulos de Caja
             </p>
             
             <button
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#8B5CF6] text-white shadow-sm"
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-lg shadow-purple-600/40 border border-purple-400/30"
             >
-              <span>⚡</span>
+              <span className="text-sm">⚡</span>
               <span>Recepción en Vivo</span>
             </button>
 
             <button
               onClick={() => setIsCloseModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-purple-300/80 hover:text-white hover:bg-white/5 transition-all"
             >
-              <span>📊</span>
+              <span className="text-sm">📊</span>
               <span>Cierre de Caja ({getDateLabel()})</span>
             </button>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-purple-300/80 hover:text-white hover:bg-white/5 transition-all"
             >
-              <span>🏢</span>
+              <span className="text-sm">🏢</span>
               <span>Credenciales & API</span>
             </button>
 
             <div className="pt-2">
               <button
                 onClick={toggleVoice}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold border transition-all ${
                   voiceEnabled 
-                    ? 'bg-purple-500/10 text-purple-300 border-purple-500/30' 
-                    : 'bg-[#12131F] text-gray-400 border-[#1E2030]'
+                    ? 'yape-badge-verified shadow-md shadow-teal-500/10' 
+                    : 'bg-[#221034] text-gray-400 border-purple-500/20'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <span>{voiceEnabled ? '🔊' : '🔇'}</span>
                   <span>Voz de Alerta</span>
                 </div>
-                <span className="text-[10px] font-mono">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
+                <span className="text-[10px] font-mono tracking-wider">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
               </button>
               <button
                 onClick={testVoice}
-                className="w-full text-left text-[10px] text-gray-500 hover:text-purple-400 px-3 pt-1 transition-colors underline"
+                className="w-full text-left text-[10px] text-purple-300 hover:text-[#00E3A5] px-3.5 pt-1.5 transition-colors underline font-medium"
               >
                 🔊 Probar volumen de voz TTS
               </button>
@@ -369,25 +371,25 @@ function App() {
               <button
                 onClick={handleSimulate}
                 disabled={simulating}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-purple-400 hover:text-white hover:bg-[#12141F] transition-all disabled:opacity-50 mt-2 border border-purple-500/20"
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-all disabled:opacity-50 mt-2 border border-amber-500/30"
               >
                 <span>⚡</span>
-                <span>{simulating ? 'Simulando...' : 'Simular Yape (S/ 15.50)'}</span>
+                <span>{simulating ? 'Simulando pago...' : 'Simular Yape (S/ 15.50)'}</span>
               </button>
             )}
           </nav>
         </div>
 
         {/* Perfil / Sesión en el Sidebar */}
-        <div className="pt-6 border-t border-[#171926] mt-6 space-y-3">
+        <div className="pt-6 border-t border-purple-500/20 mt-6 space-y-3">
           <div className="px-2">
             <p className="text-xs font-bold text-white truncate">{user?.email}</p>
-            <p className="text-[10px] text-gray-500 font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio'}</p>
+            <p className="text-[10px] text-purple-300 font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio / Tienda'}</p>
           </div>
 
           <button
             onClick={logout}
-            className="w-full bg-[#11121C] hover:bg-red-500/10 hover:text-red-400 text-gray-400 border border-[#1D2030] text-xs font-medium py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-[#231236] hover:bg-red-500/15 hover:text-red-400 text-purple-300 border border-purple-500/30 text-xs font-bold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
             <span>🚪</span>
             <span>Cerrar Sesión</span>
@@ -399,7 +401,7 @@ function App() {
       <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
         {/* Banner de Auditoría del Super Admin */}
         {viewingTenant && (
-          <div className="bg-[#1C1236] border-b border-[#362269] text-purple-200 px-6 py-3 flex items-center justify-between text-xs">
+          <div className="bg-gradient-to-r from-[#4A154B] to-[#36113A] border-b border-purple-400/40 text-purple-100 px-6 py-3 flex items-center justify-between text-xs font-semibold shadow-md">
             <div className="flex items-center gap-2">
               <span>👑</span>
               <span>Modo Auditoría Super Admin — Viendo la Caja de: <strong className="text-white underline">{viewingTenant.nombre_negocio}</strong></span>
@@ -414,17 +416,17 @@ function App() {
         )}
 
         {/* Header Principal de Caja */}
-        <header className="h-16 border-b border-[#171926] px-6 sm:px-10 flex items-center justify-between bg-[#0A0B12]/80 backdrop-blur-md sticky top-0 z-20">
+        <header className="h-16 border-b border-purple-500/25 px-6 sm:px-10 flex items-center justify-between bg-[#1A0C2A]/85 backdrop-blur-xl sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-gray-400">Terminal POS</span>
-            <span className="text-gray-600">/</span>
+            <span className="text-xs font-bold text-purple-300/70 uppercase tracking-wider">Terminal de Cobro</span>
+            <span className="text-purple-400/40">/</span>
             <span className="text-xs font-bold text-white">{tenant?.nombre_negocio || 'Caja Principal'}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              En Espera de Yapes
+            <span className="yape-badge-verified px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider inline-flex items-center gap-2 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#00E3A5] animate-pulse"></span>
+              <span>SISTEMA YAPE VERIFICADO</span>
             </span>
           </div>
         </header>
@@ -432,45 +434,45 @@ function App() {
         {/* Contenido Completo del POS */}
         <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
           {/* Selector de Fechas (Filtros en el POS) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0D0E16] border border-[#1E2030] p-2 rounded-2xl">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#24113A]/70 backdrop-blur-md border border-purple-500/30 p-2.5 rounded-2xl shadow-xl shadow-purple-950/40">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-semibold text-gray-400 px-3">Período:</span>
+              <span className="text-xs font-bold text-purple-200 px-3 uppercase tracking-wider">Período:</span>
               <button
                 onClick={() => setDateFilter('today')}
-                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'today'
-                    ? 'bg-[#8B5CF6] text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
+                    : 'text-purple-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Hoy
               </button>
               <button
                 onClick={() => setDateFilter('yesterday')}
-                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'yesterday'
-                    ? 'bg-[#8B5CF6] text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
+                    : 'text-purple-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Ayer
               </button>
               <button
                 onClick={() => setDateFilter('last_7_days')}
-                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'last_7_days'
-                    ? 'bg-[#8B5CF6] text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
+                    : 'text-purple-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Últimos 7 Días
               </button>
               <button
                 onClick={() => setDateFilter('last_30_days')}
-                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'last_30_days'
-                    ? 'bg-[#8B5CF6] text-white shadow-sm'
-                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
+                    : 'text-purple-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Últimos 30 Días
@@ -480,7 +482,7 @@ function App() {
             <button
               onClick={exportToCSV}
               disabled={!transactions || transactions.length === 0}
-              className="bg-[#12131F] hover:bg-[#181A2A] text-gray-200 hover:text-white border border-[#212338] text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors disabled:opacity-40 flex items-center gap-2"
+              className="bg-gradient-to-r from-[#2B1344] to-[#200D34] hover:from-[#361A54] hover:to-[#2B1245] text-purple-200 hover:text-white border border-purple-400/30 text-xs font-bold px-4 py-2 rounded-xl transition-all disabled:opacity-40 flex items-center gap-2 shadow-sm"
               title="Descargar historial filtrado a archivo CSV / Excel"
             >
               <span>📥</span>
@@ -488,7 +490,7 @@ function App() {
             </button>
           </div>
 
-          {/* Resumen Contable Sobrio */}
+          {/* Resumen Contable Yape Command Center */}
           <CashierSummary 
             summary={summary} 
             includeTests={includeTests} 
@@ -500,14 +502,14 @@ function App() {
 
           {/* Historial en Vivo */}
           <section className="space-y-4">
-            <div className="flex justify-between items-center border-b border-[#171926] pb-3">
+            <div className="flex justify-between items-center border-b border-purple-500/25 pb-3.5">
               <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Historial de Recaudación ({getDateLabel()})
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                  <span>HISTORIAL DE COBROS YAPE ({getDateLabel()})</span>
                 </h3>
-                <p className="text-xs text-gray-400">Transacciones entrantes verificadas en tiempo real</p>
+                <p className="text-xs text-purple-300/80 mt-0.5">Transacciones Yape entrantes verificadas en tiempo real por el servidor interbancario</p>
               </div>
-              <span className="bg-[#121420] text-purple-400 text-xs font-mono font-bold px-3 py-1 rounded-lg border border-[#212436]">
+              <span className="yape-badge-verified text-xs font-mono font-bold px-3 py-1 rounded-xl">
                 {transactions.length} pagos
               </span>
             </div>

@@ -23,10 +23,10 @@
 - **📊 Ticket de Cierre de Caja Digital:** Módulo con facturación limpia y formato automático listo para copiar al portapapeles y enviar por **WhatsApp** o imprimir en PDF.
 - **⚡ Simulador Rápido Integrado:** Botón de simulación para pruebas de capacitación o demostraciones sin depender de MacroDroid.
 
-### 🎨 4. Diseño Corporativo Full-Screen con SIDEBAR (Estilo Linear / Bloomberg / Vercel)
+### 🎨 4. Diseño Corporativo "Deep Yape Royal Glass" (Command Center Institucional)
 - **Layout Enterprise Full-Screen:** Arquitectura al 100% de pantalla con **Barra Lateral Izquierda (SIDEBAR)** adaptable para escritorio, tablets y dispositivos móviles.
-- **Paleta Dark Obsidian Monocromática:** Fondo oscuro sobrio (`#08090E`), superficies pizarra oscura mate (`#0D0E16`) y un único acento morado oficial de marca (`#8B5CF6`).
-- **Tipografía Oficial Google Fonts:** Incorpora **Plus Jakarta Sans** para jerarquía visual y **JetBrains Mono** para alineación contable y lectura numérica.
+- **Paleta Oficial "Deep Yape Royal Glass":** Fondo terciopelo morado institucional (`#170A24`), superficies translúcidas de cristal (*Glassmorphism*) con bordes de luz violeta (`#8B2FE5`) y acentos en **Turquesa Menta Oficial** (`#00E3A5`) para transacciones y estados verificados.
+- **Tipografía Oficial Google Fonts:** Incorpora **Plus Jakarta Sans** para jerarquía visual y **JetBrains Mono** para alineación contable, números bancarios y lectura numérica en tiempo real.
 
 ---
 
