@@ -4,34 +4,36 @@
 
 ---
 
-## ✨ Características Principales
+## Características Principales
 
-### 🏢 1. Arquitectura Multi-Tenant & Seguridad de Sesión
+### 1. Arquitectura Multi-Tenant & Seguridad de Sesión
 - **Aislamiento por Tenant ID:** Cada comercio posee su propia cuenta, token de API secreto, webhooks y flujo de transacciones aislado.
 - **Autenticación HTTP Bearer & Sesiones (`AuthHelper.php`):** Control de acceso por roles (`admin` para el propietario SaaS y `comercio` para el cliente de bodega/tienda).
-- **Aislamiento de Simulaciones (`is_test`):** Permite simular cobros de prueba sin contaminar la contabilidad del negocio ni los reportes de recaudo real del día.
+- **Aislamiento de Simulaciones (`is_test`):** Permite simular cobros de prueba sin contaminar la contabilidad del negocio ni los reportes de recaudo real del día. Las funciones de simulación son exclusivas del rol Super Admin.
 
-### 👑 2. Panel del Super Administrador (SaaS Owner)
+### 2. Panel del Super Administrador (SaaS Owner)
 - **Directorio y Alta de Comercios:** Crea nuevas cuentas, asigna correos electrónicos para recepción y administra el estado de los clientes (`Activo` o `Suspendido`).
-- **👀 Modo Auditoría en Vivo:** El Super Admin puede inspeccionar en tiempo real la pantalla del cajero y los cobros entrantes de cualquier negocio afiliado sin necesidad de pedir sus credenciales.
+- **Modo Auditoría en Vivo:** El Super Admin puede inspeccionar en tiempo real la pantalla del cajero y los cobros entrantes de cualquier negocio afiliado sin necesidad de pedir sus credenciales.
 - **KPIs Consolidados del SaaS:** Monitoreo del volumen total de dinero procesado y estado del sistema.
+- **Funciones Demo Exclusivas:** El botón de simulación de pagos, la tarjeta de pruebas y el toggle de simulaciones solo son visibles para el Super Admin. Los cajeros/comercios ven únicamente cobros reales.
 
-### ⚡ 3. Terminal POS de Cajero (Comercio / Tienda)
+### 3. Terminal POS de Cajero (Comercio / Tienda)
 - **Recepción en Vivo con WebSockets (Pusher):** Alertas de sonido instantáneas (`yape_alert.mp3`) sin necesidad de refrescar la página.
-- **🗣️ Alerta por Voz Inteligente (TTS):** Síntesis de voz nativa del navegador (*Web Speech API*) que pronuncia en voz alta el monto y nombre del cliente al recibir cada pago.
-- **📅 Filtros de Fecha & Exportación Contable:** Selector de periodos (Hoy, Ayer, Últimos 7 Días, Últimos 30 Días) con descarga inmediata en archivo **Excel / CSV**.
-- **📊 Ticket de Cierre de Caja Digital:** Módulo con facturación limpia y formato automático listo para copiar al portapapeles y enviar por **WhatsApp** o imprimir en PDF.
-- **⚡ Simulador Rápido Integrado:** Botón de simulación para pruebas de capacitación o demostraciones sin depender de MacroDroid.
+- **Alerta por Voz Inteligente (TTS):** Síntesis de voz nativa del navegador (*Web Speech API*) que pronuncia en voz alta el monto, nombre del cliente y hora al recibir cada pago. Incluye frase introductoria de apertura de canal de audio (`". . Nuevo pago Yape. ."`) para evitar recortes en Windows/Chrome, invocación instantánea sin demoras (0ms) y formato de hora en 12h.
+- **Filtros de Fecha & Exportación Contable:** Selector de periodos (Hoy, Ayer, Últimos 7 Días, Últimos 30 Días) con descarga inmediata en archivo **Excel / CSV**.
+- **Ticket de Cierre de Caja Digital:** Módulo con facturación limpia y formato automático listo para copiar al portapapeles y enviar por **WhatsApp** o imprimir en PDF.
+- **Carrusel Horizontal de Tarjetas Yape en Tiempo Real:** En lugar de una lista vertical tradicional, el POS muestra las transacciones entrantes en un carrusel interactivo horizontal de derecha a izquierda con flechas de navegación (`< / >`) y desplazamiento automático animado al primer lugar cuando ingresa un nuevo cobro con animación de entrada (`animate-yape-carousel-enter`).
 
-### 🎨 4. Diseño Minimalista Empresarial (Blanco Corporativo & Morado Institucional)
+### 4. Diseño Minimalista Empresarial (Blanco Corporativo & Morado Institucional)
 - **Layout Enterprise con Sidebar:** Arquitectura ejecutiva de pantalla completa con **Barra Lateral Izquierda (SIDEBAR)** en **Blanco Puro Ejecutivo (`#FFFFFF`)** con bordes finos gris pizarra (`#E2E8F0`), ideal para operación corporativa continua en PC, tablet o móvil.
 - **Paleta Blanco Corporativo Minimalista:** Fondo blanco perla / slate claro (`#F8FAFC`), tarjetas y menú en blanco puro (`#FFFFFF`) con bordes finos (`#E2E8F0`), acentos morados oficiales de Yape (`#7C3AED`) en botones activos y montos en verde contable (`#059669`). Cero negro y cero luces de neón.
 - **Tipografía Oficial Google Fonts:** Incorpora **Plus Jakarta Sans** para máxima claridad ejecutiva y **JetBrains Mono** para alineación numérica contable sin sobrecargar la vista.
-- **Carrusel Horizontal de Tarjetas Yape en Tiempo Real:** En lugar de una lista vertical tradicional, el POS muestra las transacciones entrantes en un carrusel interactivo horizontal de derecha a izquierda con flechas de navegación (`← / →`) y desplazamiento automático animado al primer lugar (`#1`) cuando ingresa un nuevo cobro.
+- **Iconografía SVG Profesional:** Sistema completo de iconos vectoriales SVG corporativos (estilo Bloomberg/Stripe) en lugar de emojis. Incluye IconActivity, IconBarChart, IconBuilding, IconLogOut, IconVolumeUp, IconVolumeMute, IconEye, IconDownload, IconFileText, IconShieldCheck, IconAlertCircle entre otros.
+- **Modales en Blanco Corporativo:** Los modales de Configuración API, Cierre de Caja e inicio de sesión utilizan el mismo estilo Blanco Puro (`#FFFFFF`) con bordes finos y textos oscuros legibles.
 
 ---
 
-## 🚀 Stack Tecnológico
+## Stack Tecnológico
 
 - **Frontend:** React 18, Vite, Tailwind CSS v4, Context API (`AuthContext`), y WebSockets Client (`usePusher`).
 - **Backend REST API:** PHP 8.2 nativo con arquitectura orientada a servicios (`auth.php`, `admin.php`, `tenant.php`, `transactions.php`).
@@ -41,7 +43,7 @@
 
 ---
 
-## 📁 Estructura del Repositorio
+## Estructura del Repositorio
 
 ```text
 /
@@ -66,22 +68,23 @@
     ├── src/
     │   ├── components/
     │   │   ├── SuperAdminDashboard.jsx   # Panel completo con SIDEBAR para SaaS Owner
-    │   │   ├── LoginPage.jsx             # Login sobrio corporativo con cuentas demo
+    │   │   ├── LoginPage.jsx             # Login corporativo (cuentas demo solo en modo demo)
     │   │   ├── CashierSummary.jsx        # KPIs de mostrador y contador contable
-    │   │   ├── CashierCloseModal.jsx     # Recibo digital para WhatsApp / Imprimir
-    │   │   ├── TenantModal.jsx           # Modal para copiar token y webhook de tienda
-    │   │   └── YapeCard.jsx              # Tarjeta individual de pago verificado
+    │   │   ├── CashierCloseModal.jsx     # Recibo digital (Blanco Corporativo) para WhatsApp / Imprimir
+    │   │   ├── TenantModal.jsx           # Modal corporativo para copiar token y webhook de tienda
+    │   │   ├── YapeCard.jsx              # Tarjeta individual de pago en formato carrusel horizontal
+    │   │   └── Icons.jsx                 # Sistema de iconos SVG corporativos profesionales
     │   ├── context/
     │   │   └── AuthContext.jsx           # Manejo global del usuario, JWT/Token y Auditoría
     │   ├── hooks/
     │   │   └── usePusher.js              # Suscripción al canal privado WebSocket del Tenant
-    │   ├── App.jsx                       # Terminal POS principal del cajero con SIDEBAR
-    │   └── index.css                     # Sistema de tokens Dark Obsidian y animaciones
+    │   ├── App.jsx                       # Terminal POS principal con SIDEBAR y carrusel horizontal
+    │   └── index.css                     # Sistema de diseño Blanco Corporativo Minimalista y animaciones
 ```
 
 ---
 
-## ⚙️ Guía de Instalación y Puesta en Marcha
+## Guia de Instalación y Puesta en Marcha
 
 ### 1. Variables de Entorno y Configuración Base
 
@@ -119,19 +122,19 @@ SOURCE backend/seed_auth.sql;
 
 ---
 
-## 🔐 Cuentas Demo Iniciales
+## Cuentas Demo Iniciales
 
-Puedes hacer clic en los botones del pie de página del Login o usar las siguientes credenciales para probar los dos perfiles de usuario del sistema:
+> **Nota:** Las cuentas de demostración rápida en el Login solo aparecen cuando `VITE_MODE=demo`. Las funciones de simulación (botón Simular Yape, tarjeta de pruebas, toggle de simulaciones) solo son visibles para el rol **Super Admin**.
 
 | Rol | Correo Electrónico | Contraseña | Funcionalidades |
 | :--- | :--- | :--- | :--- |
-| **👑 Super Admin (SaaS Owner)** | `admin@yape.com` | `admin123` | Alta de clientes, suspensión de tiendas, auditoría en vivo, KPIs SaaS. |
-| **🏪 Mi Bodega VIP (Cliente 1)** | `bodega@prueba.com` | `123456` | Terminal POS, alertas sonoras, cierre de caja WhatsApp, simulación. |
-| **💊 Farmacia VIP 24/7 (Cliente 2)** | `farmacia@prueba.com` | `123456` | Terminal POS aislado e independiente (Tenant 2). |
+| **Super Admin (SaaS Owner)** | `admin@yape.com` | `admin123` | Alta de clientes, suspensión de tiendas, auditoría en vivo, KPIs SaaS, simulación de pagos. |
+| **Mi Bodega VIP (Cliente 1)** | `bodega@prueba.com` | `123456` | Terminal POS, alertas sonoras, cierre de caja WhatsApp. Sin acceso a funciones demo. |
+| **Farmacia VIP 24/7 (Cliente 2)** | `farmacia@prueba.com` | `123456` | Terminal POS aislado e independiente (Tenant 2). Sin acceso a funciones demo. |
 
 ---
 
-## 📱 Configuración en MacroDroid (Celular de Tienda)
+## Configuración en MacroDroid (Celular de Tienda)
 
 1. En MacroDroid, crea un disparador en la aplicación **Yape** con texto de notificación que contenga `S/`.
 2. Añade la acción **Solicitud HTTP (POST)** a `http://tu_dominio/yape/backend/public/index.php`.
@@ -150,8 +153,10 @@ Puedes hacer clic en los botones del pie de página del Login o usar las siguien
 
 ---
 
-## 🛡️ Seguridad & Mejores Prácticas Implementadas
+## Seguridad & Mejores Prácticas Implementadas
 - Prevención de inyección SQL mediante sentencias preparadas PDO (`PDO::PARAM_STR`, `PARAM_INT`).
 - Validación contra notificaciones duplicadas usando índices únicos (`INSERT IGNORE`).
 - Exclusión total de contraseñas, hashes y secretos en los endpoints del frontend.
-- Tipografía monospaced bancaria (`JetBrains Mono`) y contraste óptimo en modo oscuro según guías UI/UX modernas.
+- Funciones de demo y simulación restringidas exclusivamente al rol Super Admin (`user.rol === 'admin'`).
+- Tipografía monospaced bancaria (`JetBrains Mono`) y contraste óptimo en modo blanco corporativo según guías UI/UX modernas.
+- Iconografía SVG profesional en lugar de emojis para máxima sobriedad empresarial.
