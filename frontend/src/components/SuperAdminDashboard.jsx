@@ -111,15 +111,15 @@ export const SuperAdminDashboard = () => {
           </div>
 
           {/* Nav */}
-          <nav className="space-y-1">
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">Navegación Principal</p>
+          <nav className="space-y-1.5">
+            <p className="text-[10px] font-bold text-[#D8B4FE]/70 uppercase tracking-wider px-3 mb-2">Navegación Principal</p>
             
             <button
               onClick={() => setActiveTab('general')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'general'
-                  ? 'bg-[#8B5CF6] text-white shadow-sm'
-                  : 'text-gray-400 hover:text-white hover:bg-[#12141F]'
+                  ? 'bg-[#7C3AED] text-white shadow-sm'
+                  : 'text-[#E9D5FF] hover:text-white hover:bg-[#3B144D]'
               }`}
             >
               <span>📊</span>
@@ -128,22 +128,22 @@ export const SuperAdminDashboard = () => {
 
             <button
               onClick={() => setActiveTab('comercios')}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'comercios'
-                  ? 'bg-[#8B5CF6] text-white shadow-sm'
-                  : 'text-gray-400 hover:text-white hover:bg-[#12141F]'
+                  ? 'bg-[#7C3AED] text-white shadow-sm'
+                  : 'text-[#E9D5FF] hover:text-white hover:bg-[#3B144D]'
               }`}
             >
               <div className="flex items-center gap-3">
                 <span>🏪</span>
                 <span>Directorio de Tiendas</span>
               </div>
-              <span className="bg-white/10 px-2 py-0.5 rounded-md text-[10px]">{totalStores}</span>
+              <span className="bg-white/15 px-2 py-0.5 rounded-md text-[10px] text-white font-mono">{totalStores}</span>
             </button>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#E9D5FF] hover:text-white hover:bg-[#3B144D] transition-all"
             >
               <span>➕</span>
               <span>Alta de Comercio</span>
@@ -152,15 +152,15 @@ export const SuperAdminDashboard = () => {
         </div>
 
         {/* Perfil del Usuario en Sidebar */}
-        <div className="pt-6 border-t border-[#171926] mt-6 space-y-3">
+        <div className="pt-6 border-t border-[#3B144D] mt-6 space-y-3">
           <div className="px-2">
             <p className="text-xs font-bold text-white truncate">{user?.email}</p>
-            <p className="text-[10px] text-purple-400 font-mono">Rol: SaaS Owner</p>
+            <p className="text-[10px] text-[#D8B4FE] font-mono">Rol: SaaS Owner</p>
           </div>
 
           <button
             onClick={logout}
-            className="w-full bg-[#11121C] hover:bg-red-500/10 hover:text-red-400 text-gray-400 border border-[#1D2030] text-xs font-medium py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-[#21092B] hover:bg-red-500/20 hover:text-red-300 text-[#D8B4FE] border border-[#3B144D] text-xs font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
             <span>🚪</span>
             <span>Cerrar Sesión</span>
@@ -170,18 +170,18 @@ export const SuperAdminDashboard = () => {
 
       {/* ÁREA PRINCIPAL DE CONTENIDO A PANTALLA COMPLETA */}
       <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
-        {/* Topbar Sobrio */}
-        <header className="h-16 border-b border-[#171926] px-6 sm:px-8 flex items-center justify-between bg-[#0A0B12]/80 backdrop-blur-md sticky top-0 z-20">
+        {/* Topbar Corporativo Blanco */}
+        <header className="h-16 border-b border-[#E2E8F0] px-6 sm:px-8 flex items-center justify-between bg-white sticky top-0 z-20 shadow-xs">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-gray-400">Panel Administrativo</span>
-            <span className="text-gray-600">/</span>
-            <span className="text-xs font-bold text-white capitalize">{activeTab === 'general' ? 'Vista General & KPIs' : 'Gestión de Tiendas'}</span>
+            <span className="text-xs font-semibold text-[#64748B]">Panel Administrativo</span>
+            <span className="text-[#CBD5E1]">/</span>
+            <span className="text-xs font-bold text-[#0F172A] capitalize">{activeTab === 'general' ? 'Vista General & KPIs' : 'Gestión de Tiendas'}</span>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-2"
+              className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-2"
             >
               <span>➕</span>
               <span>Registrar Tienda</span>
@@ -189,77 +189,77 @@ export const SuperAdminDashboard = () => {
           </div>
         </header>
 
-        {/* Contenido Adaptable */}
+        {/* Contenido Minimalista Ejecutivo */}
         <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
           {/* Banner de Estado del SaaS */}
-          <div className="saas-card rounded-2xl p-6 sm:p-8 border border-[#1E2030] flex flex-wrap items-center justify-between gap-6">
+          <div className="saas-card rounded-xl p-6 sm:p-8 border border-[#E2E8F0] flex flex-wrap items-center justify-between gap-6 shadow-xs">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#0F172A] tracking-tight">
                 Estado Operativo de la Plataforma
               </h2>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-[#64748B] mt-1">
                 Monitoreo consolidado de cobros validados y comercios activos
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3.5 py-1.5 rounded-full">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3.5 py-1.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
                 Sistemas Yape POS en Línea
               </span>
             </div>
           </div>
 
-          {/* Tarjetas KPI Monocromáticas de Alta Densidad */}
+          {/* Tarjetas KPI Monocromáticas Blancas de Alta Legibilidad */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <div className="saas-card-hover rounded-2xl p-6 border border-[#1E2030] space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tiendas Registradas</p>
+            <div className="saas-card-hover rounded-xl p-6 border border-[#E2E8F0] space-y-2 shadow-xs">
+              <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Tiendas Registradas</p>
               <div className="flex items-baseline justify-between">
-                <span className="text-3xl font-mono font-bold text-white">{totalStores}</span>
-                <span className="text-xs text-gray-500">100% plataforma</span>
+                <span className="text-3xl font-mono font-extrabold text-[#0F172A]">{totalStores}</span>
+                <span className="text-xs text-[#64748B]">100% plataforma</span>
               </div>
             </div>
 
-            <div className="saas-card-hover rounded-2xl p-6 border border-[#1E2030] space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Comercios Activos</p>
+            <div className="saas-card-hover rounded-xl p-6 border border-[#E2E8F0] space-y-2 shadow-xs">
+              <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Comercios Activos</p>
               <div className="flex items-baseline justify-between">
-                <span className="text-3xl font-mono font-bold text-white">{activeStores}</span>
-                <span className="text-xs text-emerald-400 font-medium">Operativos</span>
+                <span className="text-3xl font-mono font-extrabold text-[#0F172A]">{activeStores}</span>
+                <span className="text-xs text-[#16A34A] font-semibold">Operativos</span>
               </div>
             </div>
 
-            <div className="saas-card-hover rounded-2xl p-6 border border-[#1E2030] space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Volumen Real Procesado</p>
+            <div className="saas-card-hover rounded-xl p-6 border border-[#E2E8F0] space-y-2 shadow-xs">
+              <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Volumen Real Procesado</p>
               <div className="flex items-baseline justify-between">
-                <span className="text-3xl font-mono font-bold text-white">S/ {totalVolume.toFixed(2)}</span>
-                <span className="text-xs text-purple-400 font-medium">PEN</span>
+                <span className="text-3xl font-mono font-extrabold text-[#0F172A]">S/ {totalVolume.toFixed(2)}</span>
+                <span className="text-xs text-[#7C3AED] font-semibold">PEN</span>
               </div>
             </div>
           </div>
 
-          {/* Tabla Empresarial Sobria de Comercios */}
-          <div className="saas-card rounded-2xl border border-[#1E2030] overflow-hidden">
-            <div className="p-5 border-b border-[#1E2030] flex flex-wrap items-center justify-between gap-4 bg-[#0A0B12]">
+          {/* Tabla Empresarial de Comercios */}
+          <div className="saas-card rounded-xl border border-[#E2E8F0] overflow-hidden shadow-xs">
+            <div className="p-5 border-b border-[#E2E8F0] flex flex-wrap items-center justify-between gap-4 bg-white">
               <div>
-                <h3 className="text-sm font-bold text-white">Directorio de Cajas Registradas</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Audita o controla las sesiones del cliente en tiempo real</p>
+                <h3 className="text-sm font-bold text-[#0F172A]">Directorio de Cajas Registradas</h3>
+                <p className="text-xs text-[#64748B] mt-0.5">Audita o controla las sesiones del cliente en tiempo real</p>
               </div>
               <button
                 onClick={fetchTenants}
-                className="text-xs font-medium text-gray-400 hover:text-white bg-[#131522] hover:bg-[#1A1D2E] px-3.5 py-1.5 rounded-xl border border-[#212538] transition-colors"
+                className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-[#F8FAFC] hover:bg-[#F1F5F9] px-3.5 py-1.5 rounded-xl border border-[#CBD5E1] transition-colors"
               >
                 Actualizar Lista
               </button>
             </div>
 
             {loading ? (
-              <div className="p-12 text-center text-xs text-gray-400">Cargando datos de comercios...</div>
+              <div className="p-12 text-center text-xs text-[#64748B]">Cargando datos de comercios...</div>
             ) : tenants.length === 0 ? (
-              <div className="p-12 text-center text-xs text-gray-500">No hay tiendas registradas aún en el sistema.</div>
+              <div className="p-12 text-center text-xs text-[#64748B]">No hay tiendas registradas aún en el sistema.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#0A0B12] border-b border-[#1E2030] text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
                     <tr>
                       <th className="py-3.5 px-6">ID</th>
                       <th className="py-3.5 px-6">Comercio / Negocio</th>
@@ -269,29 +269,29 @@ export const SuperAdminDashboard = () => {
                       <th className="py-3.5 px-6 text-center">Auditoría / Gestión</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#171926]">
+                  <tbody className="divide-y divide-[#E2E8F0]">
                     {tenants.map((t) => (
-                      <tr key={t.id} className="hover:bg-[#10121C] transition-colors">
-                        <td className="py-4 px-6 font-mono text-gray-500">#{t.id}</td>
-                        <td className="py-4 px-6 font-bold text-white">{t.nombre_negocio}</td>
-                        <td className="py-4 px-6 font-mono text-gray-400">{t.email}</td>
+                      <tr key={t.id} className="hover:bg-[#F8FAFC] transition-colors">
+                        <td className="py-4 px-6 font-mono text-[#64748B]">#{t.id}</td>
+                        <td className="py-4 px-6 font-bold text-[#0F172A]">{t.nombre_negocio}</td>
+                        <td className="py-4 px-6 font-mono text-[#475569]">{t.email}</td>
                         <td className="py-4 px-6">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium ${
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold text-xs ${
                             t.estado === 'Activo'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-red-50 text-red-700 border border-red-200'
                           }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${t.estado === 'Activo' ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${t.estado === 'Activo' ? 'bg-[#16A34A]' : 'bg-red-500'}`}></span>
                             {t.estado}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-white text-sm">
+                        <td className="py-4 px-6 text-right font-mono font-bold text-[#059669] text-sm">
                           S/ {parseFloat(t.total_real || 0).toFixed(2)}
                         </td>
                         <td className="py-4 px-6 text-center space-x-2">
                           <button
                             onClick={() => setViewingTenant(t)}
-                            className="bg-[#181928] hover:bg-[#8B5CF6] text-gray-200 hover:text-white border border-[#26283D] hover:border-[#8B5CF6] text-xs font-medium px-3.5 py-1.5 rounded-xl transition-all inline-flex items-center gap-1.5"
+                            className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] hover:border-[#7C3AED] text-xs font-semibold px-3.5 py-1.5 rounded-xl transition-all inline-flex items-center gap-1.5 shadow-xs"
                             title="Auditar y ver la caja del cliente en vivo"
                           >
                             <span>👀</span>
@@ -300,10 +300,10 @@ export const SuperAdminDashboard = () => {
 
                           <button
                             onClick={() => handleToggleStatus(t.id, t.estado)}
-                            className={`text-xs font-medium px-3 py-1.5 rounded-xl border transition-all ${
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all ${
                               t.estado === 'Activo'
-                                ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/20'
-                                : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                                ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
                             }`}
                           >
                             {t.estado === 'Activo' ? 'Suspender' : 'Activar'}
@@ -319,27 +319,27 @@ export const SuperAdminDashboard = () => {
         </div>
       </main>
 
-      {/* Modal de Nuevo Comercio Sobrio */}
+      {/* Modal de Nuevo Comercio Minimalista */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md saas-card rounded-2xl p-7 border border-[#1E2030] space-y-6">
-            <div className="flex items-center justify-between border-b border-[#1E2030] pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-md bg-white rounded-2xl p-7 border border-[#E2E8F0] space-y-6 shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
               <div>
-                <h3 className="text-sm font-bold text-white">Alta de Nuevo Comercio</h3>
-                <p className="text-xs text-gray-400">Crea acceso de cliente y token en el SaaS</p>
+                <h3 className="text-sm font-bold text-[#0F172A]">Alta de Nuevo Comercio</h3>
+                <p className="text-xs text-[#64748B]">Crea acceso de cliente en la plataforma SaaS</p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white">✕</button>
+              <button onClick={() => setIsModalOpen(false)} className="text-[#64748B] hover:text-[#0F172A]">✕</button>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-300 text-xs p-3 rounded-xl">
+              <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-medium">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleCreateTenant} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-gray-300 block mb-1">Nombre de la Tienda</label>
+                <label className="text-xs font-semibold text-[#334155] block mb-1">Nombre de la Tienda</label>
                 <input
                   type="text"
                   required
@@ -351,7 +351,7 @@ export const SuperAdminDashboard = () => {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-300 block mb-1">Correo de Acceso</label>
+                <label className="text-xs font-semibold text-[#334155] block mb-1">Correo de Acceso</label>
                 <input
                   type="email"
                   required
@@ -363,7 +363,7 @@ export const SuperAdminDashboard = () => {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-300 block mb-1">Contraseña Inicial</label>
+                <label className="text-xs font-semibold text-[#334155] block mb-1">Contraseña Inicial</label>
                 <input
                   type="text"
                   required
@@ -375,7 +375,7 @@ export const SuperAdminDashboard = () => {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-300 block mb-1">Correo Notificación Yape (Opcional)</label>
+                <label className="text-xs font-semibold text-[#334155] block mb-1">Correo Notificación Yape (Opcional)</label>
                 <input
                   type="email"
                   value={formCorreoYape}
@@ -389,14 +389,14 @@ export const SuperAdminDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-[#131420] hover:bg-[#1C1E2F] text-gray-300 font-medium py-2.5 rounded-xl text-xs transition-colors"
+                  className="flex-1 bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1] font-semibold py-2.5 rounded-xl text-xs transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex-1 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold py-2.5 rounded-xl text-xs disabled:opacity-50 transition-all"
+                  className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold py-2.5 rounded-xl text-xs disabled:opacity-50 transition-all shadow-sm"
                 >
                   {creating ? 'Creando...' : 'Registrar'}
                 </button>
