@@ -62,9 +62,13 @@ function App() {
 
   const formatMontoParaVoz = (monto) => {
     const num = parseFloat(monto || 0);
+    if (isNaN(num) || num <= 0) return '0 soles';
     const enteros = Math.floor(num);
     const centimos = Math.round((num - enteros) * 100);
 
+    if (enteros === 0) {
+      return `${centimos} ${centimos === 1 ? 'céntimo' : 'céntimos'}`;
+    }
     if (centimos === 0) {
       return `${enteros} ${enteros === 1 ? 'sol' : 'soles'}`;
     }
@@ -82,25 +86,21 @@ function App() {
       dateObj = new Date();
     }
 
-    const hours = dateObj.getHours();
+    let hours = dateObj.getHours();
     const minutes = dateObj.getMinutes();
+    const periodo = hours >= 12 ? 'de la tarde' : 'de la mañana';
 
-    let hora12 = hours % 12;
-    if (hora12 === 0) hora12 = 12;
-
-    let periodo = "de la mañana";
-    if (hours >= 12 && hours < 19) {
-      periodo = "de la tarde";
-    } else if (hours >= 19 || hours < 5) {
-      periodo = "de la noche";
+    if (hours === 0) {
+      hours = 12;
+    } else if (hours > 12) {
+      hours -= 12;
     }
 
-    let textoHora = (hora12 === 1) ? "a la una" : `a las ${hora12}`;
-
+    let textoHora = `${hours}`;
     if (minutes === 0) {
-      textoHora += " en punto";
-    } else if (minutes === 1) {
-      textoHora += " y un minuto";
+      textoHora += ' en punto';
+    } else if (minutes < 10) {
+      textoHora += ` y cero ${minutes}`;
     } else {
       textoHora += ` y ${minutes}`;
     }
@@ -114,7 +114,11 @@ function App() {
       const fraseMonto = formatMontoParaVoz(monto);
       const nombreStr = remitente || 'Cliente';
       const fraseHora = formatHoraParaVoz(fechaHora);
-      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de ${nombreStr}, ${fraseHora}!`);
+      
+      // La frase introductoria (". . Nuevo pago Yape. . ") da tiempo al controlador de audio de Windows a activarse antes de pronunciar el monto, evitando que se corte
+      const textoVoz = `. . Nuevo pago Yape. . por ${fraseMonto}, de ${nombreStr}, a las ${fraseHora}.`;
+
+      const utterance = new SpeechSynthesisUtterance(textoVoz);
       utterance.lang = 'es-ES';
       utterance.rate = 0.96;
 
@@ -133,7 +137,10 @@ function App() {
       window.speechSynthesis.cancel();
       const fraseMonto = formatMontoParaVoz(15.50);
       const fraseHora = formatHoraParaVoz(new Date().toISOString());
-      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de Juan Pérez, ${fraseHora}!`);
+      
+      const textoVoz = `. . Nuevo pago Yape. . por ${fraseMonto}, de Juan Pérez, a las ${fraseHora}.`;
+
+      const utterance = new SpeechSynthesisUtterance(textoVoz);
       utterance.lang = 'es-ES';
       utterance.rate = 0.96;
 
@@ -158,10 +165,8 @@ function App() {
       });
     }
 
-    // Disparar voz TTS con un ligero retraso de 850ms para no superponerse con el timbre de alerta
-    setTimeout(() => {
-      speakYape(newTx.monto, newTx.remitente, newTx.fecha_hora_yape || newTx.fecha_hora);
-    }, 850);
+    // Invocación instantánea sin retrasos (0ms delay)
+    speakYape(newTx.monto, newTx.remitente, newTx.fecha_hora_yape || newTx.fecha_hora);
 
     const isTest = Boolean(newTx.is_test);
     const montoNum = parseFloat(newTx.monto) || 0;
