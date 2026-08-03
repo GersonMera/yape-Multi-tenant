@@ -27,6 +27,7 @@
 - **Layout Enterprise con Sidebar:** Arquitectura ejecutiva de pantalla completa con **Barra Lateral Izquierda (SIDEBAR)** en **Blanco Puro Ejecutivo (`#FFFFFF`)** con bordes finos gris pizarra (`#E2E8F0`), ideal para operación corporativa continua en PC, tablet o móvil.
 - **Paleta Blanco Corporativo Minimalista:** Fondo blanco perla / slate claro (`#F8FAFC`), tarjetas y menú en blanco puro (`#FFFFFF`) con bordes finos (`#E2E8F0`), acentos morados oficiales de Yape (`#7C3AED`) en botones activos y montos en verde contable (`#059669`). Cero negro y cero luces de neón.
 - **Tipografía Oficial Google Fonts:** Incorpora **Plus Jakarta Sans** para máxima claridad ejecutiva y **JetBrains Mono** para alineación numérica contable sin sobrecargar la vista.
+- **Carrusel Horizontal de Tarjetas Yape en Tiempo Real:** En lugar de una lista vertical tradicional, el POS muestra las transacciones entrantes en un carrusel interactivo horizontal de derecha a izquierda con flechas de navegación (`← / →`) y desplazamiento automático animado al primer lugar (`#1`) cuando ingresa un nuevo cobro.
 
 ---
 

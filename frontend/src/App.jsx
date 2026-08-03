@@ -14,7 +14,8 @@ import {
   IconLogOut, 
   IconVolumeUp, 
   IconVolumeMute, 
-  IconEye 
+  IconEye,
+  IconDownload
 } from './components/Icons';
 
 function App() {
@@ -24,6 +25,17 @@ function App() {
   const tenantId = activeTenantId;
 
   const audioRef = useRef(null);
+  const carouselRef = useRef(null);
+  const [lastNewId, setLastNewId] = useState(null);
+
+  const scrollCarousel = (direction) => {
+    if (!carouselRef.current) return;
+    const scrollAmount = 360;
+    carouselRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
+  };
 
   const [tenant, setTenant] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -171,6 +183,18 @@ function App() {
   }, [includeTests, speakYape]);
 
   usePusher(tenantId, handleNewYape);
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      const newestId = transactions[0].id;
+      if (newestId !== lastNewId) {
+        setLastNewId(newestId);
+        if (carouselRef.current) {
+          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+      }
+    }
+  }, [transactions, lastNewId]);
 
   useEffect(() => {
     const fetchTenant = async () => {
@@ -495,7 +519,7 @@ function App() {
               className="bg-white hover:bg-[#F8FAFC] text-[#334155] hover:text-[#0F172A] border border-[#CBD5E1] text-xs font-semibold px-4 py-2 rounded-xl transition-all disabled:opacity-40 flex items-center gap-2 shadow-xs"
               title="Descargar historial filtrado a archivo CSV / Excel"
             >
-              <span>📥</span>
+              <IconDownload className="w-4 h-4 shrink-0" />
               <span>Exportar Excel/CSV</span>
             </button>
           </div>
@@ -510,33 +534,64 @@ function App() {
             dateLabel={getDateLabel()}
           />
 
-          {/* Historial en Vivo */}
+          {/* Historial en Vivo — Carrusel Horizontal Animado de Derecha a Izquierda */}
           <section className="space-y-4">
-            <div className="flex justify-between items-center border-b border-[#E2E8F0] pb-3.5">
+            <div className="flex flex-wrap justify-between items-center gap-4 border-b border-[#E2E8F0] pb-3.5">
               <div>
                 <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider">
                   Historial de Recaudación ({getDateLabel()})
                 </h3>
-                <p className="text-xs text-[#64748B] mt-0.5">Transacciones Yape entrantes verificadas y autenticadas</p>
+                <p className="text-xs text-[#64748B] mt-0.5">Transacciones Yape entrantes en carrusel horizontal de tarjetas en tiempo real</p>
               </div>
-              <span className="bg-[#F3E8FF] text-[#6D28D9] text-xs font-mono font-semibold px-3 py-1 rounded-md border border-[#E9D5FF]">
-                {transactions.length} pagos
-              </span>
+
+              <div className="flex items-center gap-2.5">
+                {/* Botones de Navegación del Carrusel Horizontal */}
+                <div className="flex items-center bg-white border border-[#E2E8F0] rounded-xl p-0.5 shadow-xs">
+                  <button
+                    onClick={() => scrollCarousel('left')}
+                    className="px-2.5 py-1.5 rounded-lg hover:bg-[#F8FAFC] text-[#475569] hover:text-[#0F172A] transition-colors font-bold text-xs"
+                    title="Desplazar carrusel a la izquierda (pagos más recientes)"
+                    aria-label="Anterior"
+                  >
+                    ←
+                  </button>
+                  <div className="w-px h-4 bg-[#E2E8F0] mx-0.5"></div>
+                  <button
+                    onClick={() => scrollCarousel('right')}
+                    className="px-2.5 py-1.5 rounded-lg hover:bg-[#F8FAFC] text-[#475569] hover:text-[#0F172A] transition-colors font-bold text-xs"
+                    title="Desplazar carrusel a la derecha (pagos anteriores)"
+                    aria-label="Siguiente"
+                  >
+                    →
+                  </button>
+                </div>
+
+                <span className="bg-[#F3E8FF] text-[#6D28D9] text-xs font-mono font-semibold px-3.5 py-1.5 rounded-xl border border-[#E9D5FF] shadow-xs">
+                  {transactions.length} pagos
+                </span>
+              </div>
             </div>
 
             {transactions.length === 0 ? (
-              <div className="saas-card rounded-2xl py-16 text-center border-dashed border-[#1E2030]">
-                <p className="text-sm font-semibold text-gray-300">
+              <div className="saas-card rounded-2xl py-16 text-center border-dashed border-[#CBD5E1]">
+                <p className="text-sm font-semibold text-[#0F172A]">
                   {includeTests ? 'Sin cobros ni pruebas registrados en este periodo' : `No hay pagos reales en el periodo: ${getDateLabel()}`}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Los pagos validados por MacroDroid aparecerán en esta lista al instante
+                <p className="text-xs text-[#64748B] mt-1">
+                  Los pagos validados por MacroDroid aparecerán al inicio de este carrusel horizontal con animación
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {transactions.map(yape => (
-                  <YapeCard key={yape.id} yape={yape} />
+              <div 
+                ref={carouselRef}
+                className="flex items-stretch gap-5 overflow-x-auto pb-6 pt-2 px-1 scroll-smooth snap-x snap-mandatory focus:outline-none"
+              >
+                {transactions.map((yape, index) => (
+                  <YapeCard 
+                    key={yape.id} 
+                    yape={yape} 
+                    isNewest={index === 0 && yape.id === lastNewId}
+                  />
                 ))}
               </div>
             )}
