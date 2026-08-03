@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { 
+  IconBarChart, 
+  IconStore, 
+  IconPlus, 
+  IconEye, 
+  IconLogOut, 
+  IconShieldCheck 
+} from './Icons';
 
 export const SuperAdminDashboard = () => {
   const { user, token, logout, setViewingTenant } = useAuth();
@@ -122,7 +130,7 @@ export const SuperAdminDashboard = () => {
                   : 'text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
-              <span>📊</span>
+              <IconBarChart className="w-4 h-4 shrink-0" />
               <span>Vista General</span>
             </button>
 
@@ -135,7 +143,7 @@ export const SuperAdminDashboard = () => {
               }`}
             >
               <div className="flex items-center gap-3">
-                <span>🏪</span>
+                <IconStore className="w-4 h-4 shrink-0" />
                 <span>Directorio de Tiendas</span>
               </div>
               <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono ${
@@ -147,7 +155,7 @@ export const SuperAdminDashboard = () => {
               onClick={() => setIsModalOpen(true)}
               className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-all"
             >
-              <span>➕</span>
+              <IconPlus className="w-4 h-4 shrink-0" />
               <span>Alta de Comercio</span>
             </button>
           </nav>
@@ -164,7 +172,7 @@ export const SuperAdminDashboard = () => {
             onClick={logout}
             className="w-full bg-white hover:bg-red-50 text-[#64748B] hover:text-red-600 border border-[#CBD5E1] hover:border-red-200 text-xs font-semibold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2"
           >
-            <span>🚪</span>
+            <IconLogOut className="w-4 h-4 shrink-0" />
             <span>Cerrar Sesión</span>
           </button>
         </div>
@@ -185,7 +193,7 @@ export const SuperAdminDashboard = () => {
               onClick={() => setIsModalOpen(true)}
               className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-2"
             >
-              <span>➕</span>
+              <IconPlus className="w-4 h-4 shrink-0" />
               <span>Registrar Tienda</span>
             </button>
           </div>
@@ -206,7 +214,7 @@ export const SuperAdminDashboard = () => {
 
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3.5 py-1.5 rounded-full">
-                <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+                <IconShieldCheck className="w-3.5 h-3.5" />
                 Sistemas Yape POS en Línea
               </span>
             </div>
@@ -296,7 +304,7 @@ export const SuperAdminDashboard = () => {
                             className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] hover:border-[#7C3AED] text-xs font-semibold px-3.5 py-1.5 rounded-xl transition-all inline-flex items-center gap-1.5 shadow-xs"
                             title="Auditar y ver la caja del cliente en vivo"
                           >
-                            <span>👀</span>
+                            <IconEye className="w-3.5 h-3.5" />
                             <span>Auditar Caja</span>
                           </button>
 

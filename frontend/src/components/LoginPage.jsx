@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { IconAlertCircle } from './Icons';
 
 export const LoginPage = () => {
   const { login } = useAuth();
@@ -44,7 +45,7 @@ export const LoginPage = () => {
         {/* Banner de error */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3.5 rounded-xl flex items-center gap-2.5 font-medium">
-            <span>⚠️</span>
+            <IconAlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
