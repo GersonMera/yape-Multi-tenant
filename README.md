@@ -24,8 +24,8 @@
 - **⚡ Simulador Rápido Integrado:** Botón de simulación para pruebas de capacitación o demostraciones sin depender de MacroDroid.
 
 ### 🎨 4. Diseño Minimalista Empresarial (Blanco Corporativo & Morado Institucional)
-- **Layout Enterprise con Sidebar:** Arquitectura ejecutiva de pantalla completa con **Barra Lateral Izquierda (SIDEBAR)** en morado institucional (`#280C34`) con textos claros, ideal para operación corporativa continua en PC, tablet o móvil.
-- **Paleta Blanco Corporativo Minimalista:** Fondo blanco perla / slate claro (`#F8FAFC`), tarjetas limpias en blanco puro (`#FFFFFF`) con bordes finos gris pizarra (`#E2E8F0`), acentos morados oficiales de Yape (`#7C3AED`) y montos en verde contable (`#059669`). Cero negro y cero luces de neón.
+- **Layout Enterprise con Sidebar:** Arquitectura ejecutiva de pantalla completa con **Barra Lateral Izquierda (SIDEBAR)** en **Blanco Puro Ejecutivo (`#FFFFFF`)** con bordes finos gris pizarra (`#E2E8F0`), ideal para operación corporativa continua en PC, tablet o móvil.
+- **Paleta Blanco Corporativo Minimalista:** Fondo blanco perla / slate claro (`#F8FAFC`), tarjetas y menú en blanco puro (`#FFFFFF`) con bordes finos (`#E2E8F0`), acentos morados oficiales de Yape (`#7C3AED`) en botones activos y montos en verde contable (`#059669`). Cero negro y cero luces de neón.
 - **Tipografía Oficial Google Fonts:** Incorpora **Plus Jakarta Sans** para máxima claridad ejecutiva y **JetBrains Mono** para alineación numérica contable sin sobrecargar la vista.
 
 ---

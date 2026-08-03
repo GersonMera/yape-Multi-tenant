@@ -75,10 +75,11 @@
     box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
   }
 
+  /* Sidebar Minimalista Ejecutivo en Blanco Puro */
   .saas-sidebar {
-    background: #280C34;
-    border-right: 1px solid #381248;
-    color: #F8FAFC;
+    background: #FFFFFF;
+    border-right: 1px solid #E2E8F0;
+    color: #0F172A;
   }
 
   .saas-input {

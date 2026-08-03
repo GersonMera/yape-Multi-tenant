@@ -94,17 +94,17 @@ export const SuperAdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row text-[#0F172A]">
-      {/* SIDEBAR CORPORATIVO INSTITUCIONAL YAPE */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#3B144D] p-5 shrink-0">
+      {/* SIDEBAR CORPORATIVO INSTITUCIONAL YAPE EN BLANCO PURO */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E2E8F0] p-5 shrink-0">
         <div className="space-y-7">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 bg-[#7C3AED] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-sm">
+            <div className="w-10 h-10 bg-[#7C3AED] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-xs">
               Y
             </div>
             <div>
-              <span className="font-bold text-white tracking-tight block text-sm">Yape POS SaaS</span>
-              <span className="text-[11px] text-[#D8B4FE] font-medium uppercase tracking-wider block">
+              <span className="font-bold text-[#0F172A] tracking-tight block text-sm">Yape POS SaaS</span>
+              <span className="text-[11px] text-[#64748B] font-medium uppercase tracking-wider block">
                 Super Admin Panel
               </span>
             </div>
@@ -112,14 +112,14 @@ export const SuperAdminDashboard = () => {
 
           {/* Nav */}
           <nav className="space-y-1.5">
-            <p className="text-[10px] font-bold text-[#D8B4FE]/70 uppercase tracking-wider px-3 mb-2">Navegación Principal</p>
+            <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider px-3 mb-2">Navegación Principal</p>
             
             <button
               onClick={() => setActiveTab('general')}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'general'
-                  ? 'bg-[#7C3AED] text-white shadow-sm'
-                  : 'text-[#E9D5FF] hover:text-white hover:bg-[#3B144D]'
+                  ? 'bg-[#7C3AED] text-white shadow-xs'
+                  : 'text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
               <span>📊</span>
@@ -130,20 +130,22 @@ export const SuperAdminDashboard = () => {
               onClick={() => setActiveTab('comercios')}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'comercios'
-                  ? 'bg-[#7C3AED] text-white shadow-sm'
-                  : 'text-[#E9D5FF] hover:text-white hover:bg-[#3B144D]'
+                  ? 'bg-[#7C3AED] text-white shadow-xs'
+                  : 'text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
               <div className="flex items-center gap-3">
                 <span>🏪</span>
                 <span>Directorio de Tiendas</span>
               </div>
-              <span className="bg-white/15 px-2 py-0.5 rounded-md text-[10px] text-white font-mono">{totalStores}</span>
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono ${
+                activeTab === 'comercios' ? 'bg-white/20 text-white' : 'bg-[#F1F5F9] text-[#0F172A]'
+              }`}>{totalStores}</span>
             </button>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#E9D5FF] hover:text-white hover:bg-[#3B144D] transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-all"
             >
               <span>➕</span>
               <span>Alta de Comercio</span>
@@ -152,15 +154,15 @@ export const SuperAdminDashboard = () => {
         </div>
 
         {/* Perfil del Usuario en Sidebar */}
-        <div className="pt-6 border-t border-[#3B144D] mt-6 space-y-3">
+        <div className="pt-6 border-t border-[#E2E8F0] mt-6 space-y-3">
           <div className="px-2">
-            <p className="text-xs font-bold text-white truncate">{user?.email}</p>
-            <p className="text-[10px] text-[#D8B4FE] font-mono">Rol: SaaS Owner</p>
+            <p className="text-xs font-bold text-[#0F172A] truncate">{user?.email}</p>
+            <p className="text-[10px] text-[#64748B] font-mono">Rol: SaaS Owner</p>
           </div>
 
           <button
             onClick={logout}
-            className="w-full bg-[#21092B] hover:bg-red-500/20 hover:text-red-300 text-[#D8B4FE] border border-[#3B144D] text-xs font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-white hover:bg-red-50 text-[#64748B] hover:text-red-600 border border-[#CBD5E1] hover:border-red-200 text-xs font-semibold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2"
           >
             <span>🚪</span>
             <span>Cerrar Sesión</span>

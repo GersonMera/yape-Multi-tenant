@@ -297,19 +297,19 @@ function App() {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row text-[#0F172A]">
       <audio ref={audioRef} src="/sounds/yape_alert.mp3" preload="auto"></audio>
 
-      {/* SIDEBAR CORPORATIVO INSTITUCIONAL YAPE */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#3B144D] p-5 shrink-0">
+      {/* SIDEBAR CORPORATIVO INSTITUCIONAL YAPE EN BLANCO PURO */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E2E8F0] p-5 shrink-0">
         <div className="space-y-7">
           {/* Brand & Store */}
           <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 bg-[#7C3AED] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-sm">
+            <div className="w-10 h-10 bg-[#7C3AED] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-xs">
               Y
             </div>
             <div className="overflow-hidden">
-              <span className="font-bold text-white tracking-tight block text-sm truncate">
+              <span className="font-bold text-[#0F172A] tracking-tight block text-sm truncate">
                 {tenant?.nombre_negocio || user?.nombre_negocio || 'Mi Comercio'}
               </span>
-              <span className="text-[11px] text-[#D8B4FE] font-medium block mt-0.5">
+              <span className="text-[11px] text-[#64748B] font-medium block mt-0.5">
                 Yape POS Control
               </span>
             </div>
@@ -317,12 +317,12 @@ function App() {
 
           {/* Nav en el Sidebar */}
           <nav className="space-y-1.5">
-            <p className="text-[10px] font-bold text-[#D8B4FE]/70 uppercase tracking-wider px-3 mb-2">
+            <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider px-3 mb-2">
               Módulos de Caja
             </p>
             
             <button
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#7C3AED] text-white shadow-sm"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#7C3AED] text-white shadow-xs"
             >
               <span>⚡</span>
               <span>Recepción en Vivo</span>
@@ -330,7 +330,7 @@ function App() {
 
             <button
               onClick={() => setIsCloseModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#E9D5FF] hover:text-white hover:bg-[#3B144D] transition-all"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-all"
             >
               <span>📊</span>
               <span>Cierre de Caja ({getDateLabel()})</span>
@@ -338,7 +338,7 @@ function App() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#E9D5FF] hover:text-white hover:bg-[#3B144D] transition-all"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-all"
             >
               <span>🏢</span>
               <span>Credenciales & API</span>
@@ -349,8 +349,8 @@ function App() {
                 onClick={toggleVoice}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
                   voiceEnabled 
-                    ? 'bg-[#3B144D] text-[#BBF7D0] border-[#86EFAC]/40' 
-                    : 'bg-[#21092B] text-gray-400 border-[#3B144D]'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                    : 'bg-[#F8FAFC] text-[#64748B] border-[#E2E8F0]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -361,7 +361,7 @@ function App() {
               </button>
               <button
                 onClick={testVoice}
-                className="w-full text-left text-[11px] text-[#D8B4FE] hover:text-white px-3 pt-1.5 transition-colors underline"
+                className="w-full text-left text-[11px] text-[#6D28D9] hover:text-[#5B21B6] px-3 pt-1.5 transition-colors underline"
               >
                 🔊 Probar volumen de voz TTS
               </button>
@@ -371,7 +371,7 @@ function App() {
               <button
                 onClick={handleSimulate}
                 disabled={simulating}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 transition-all disabled:opacity-50 mt-2 border border-amber-400/40"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 transition-all disabled:opacity-50 mt-2 border border-amber-200"
               >
                 <span>⚡</span>
                 <span>{simulating ? 'Simulando pago...' : 'Simular Yape (S/ 15.50)'}</span>
@@ -381,15 +381,15 @@ function App() {
         </div>
 
         {/* Perfil / Sesión en el Sidebar */}
-        <div className="pt-6 border-t border-[#3B144D] mt-6 space-y-3">
+        <div className="pt-6 border-t border-[#E2E8F0] mt-6 space-y-3">
           <div className="px-2">
-            <p className="text-xs font-bold text-white truncate">{user?.email}</p>
-            <p className="text-[10px] text-[#D8B4FE] font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio / Tienda'}</p>
+            <p className="text-xs font-bold text-[#0F172A] truncate">{user?.email}</p>
+            <p className="text-[10px] text-[#64748B] font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio / Tienda'}</p>
           </div>
 
           <button
             onClick={logout}
-            className="w-full bg-[#21092B] hover:bg-red-500/20 hover:text-red-300 text-[#D8B4FE] border border-[#3B144D] text-xs font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-white hover:bg-red-50 text-[#64748B] hover:text-red-600 border border-[#CBD5E1] hover:border-red-200 text-xs font-semibold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2"
           >
             <span>🚪</span>
             <span>Cerrar Sesión</span>
