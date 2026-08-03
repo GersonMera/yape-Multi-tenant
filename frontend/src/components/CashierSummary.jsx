@@ -9,43 +9,43 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {/* Recaudación Real - Yape Royal Glass */}
-        <div className="saas-card rounded-2xl p-6 border border-purple-500/40 bg-gradient-to-br from-[#2D1546]/90 to-[#1F0E32]/90 shadow-xl shadow-purple-950/60 flex items-center justify-between">
-          <div className="space-y-2">
-            <span className="yape-badge-verified px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#00E3A5] animate-pulse"></span>
-              <span>RECAUDACIÓN EN VIVO ({dateLabel})</span>
+        {/* Recaudación Real - Minimalista Blanco y Morado */}
+        <div className="saas-card rounded-xl p-6 border-l-4 border-l-[#7C3AED] flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+              <span>Recaudación Real ({dateLabel})</span>
             </span>
-            <div className="text-4xl sm:text-5xl font-mono font-extrabold yape-glow-text tracking-tight">
+            <div className="text-4xl sm:text-5xl font-mono font-extrabold text-[#0F172A] tracking-tight">
               S/ {totalReal.toFixed(2)}
             </div>
-            <p className="text-xs text-purple-200">
-              <strong className="text-white font-mono font-bold">{countReal}</strong> cobros Yape acreditados
+            <p className="text-xs text-[#64748B]">
+              <strong className="text-[#0F172A] font-mono font-bold">{countReal}</strong> cobros acreditados
             </p>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-[#8B2FE5]/20 border border-[#00E3A5]/40 flex items-center justify-center text-2xl shadow-lg shadow-teal-500/10 shrink-0">
-            🛡️
+          <div className="w-12 h-12 rounded-xl bg-[#F3E8FF] text-[#7C3AED] flex items-center justify-center text-2xl font-bold shrink-0">
+            S/
           </div>
         </div>
 
-        {/* Modo Test - Yape Test Glass */}
+        {/* Modo Test - Minimalista */}
         {isDemoMode && (
-          <div className={`saas-card rounded-2xl p-6 border transition-all ${
-            includeTests ? 'border-amber-500/40 bg-gradient-to-br from-[#2D1B28]/90 to-[#1F1122]/90' : 'border-purple-900/30 opacity-60'
+          <div className={`rounded-xl p-6 border transition-all ${
+            includeTests ? 'bg-[#FFFBEB] border-[#FDE68A]' : 'bg-[#FFFFFF] border-[#E2E8F0] opacity-60'
           } flex items-center justify-between`}>
-            <div className="space-y-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-400/30 inline-flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>PRUEBAS Y SIMULACIONES</span>
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#92400E] flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>Pruebas y Simulaciones</span>
               </span>
-              <div className="text-4xl sm:text-5xl font-mono font-bold text-amber-300 tracking-tight">
+              <div className="text-4xl sm:text-5xl font-mono font-extrabold text-[#78350F] tracking-tight">
                 S/ {totalTest.toFixed(2)}
               </div>
-              <p className="text-xs text-amber-200/80">
-                <strong className="text-white font-mono font-bold">{countTest}</strong> pruebas en entorno demo
+              <p className="text-xs text-[#92400E]/80">
+                <strong className="text-[#78350F] font-mono font-bold">{countTest}</strong> pruebas en demo
               </p>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-2xl shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl font-bold shrink-0">
               ⚡
             </div>
           </div>
@@ -57,7 +57,7 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
         <button
           type="button"
           onClick={onOpenCloseModal}
-          className="bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] hover:from-[#9B42FF] hover:to-[#7B24CC] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/40 flex items-center gap-2 border border-purple-400/30"
+          className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2"
         >
           <span>📊</span>
           <span>Generar Reporte de Cierre de Caja</span>
@@ -67,10 +67,10 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
           <button
             type="button"
             onClick={() => onToggleTests(!includeTests)}
-            className="text-xs font-medium px-4 py-2.5 rounded-xl bg-[#231236] hover:bg-[#2F1948] text-purple-300 hover:text-white border border-purple-500/30 transition-colors flex items-center gap-2"
+            className="text-xs font-semibold px-4 py-2 rounded-xl bg-white hover:bg-[#F8FAFC] text-[#475569] hover:text-[#0F172A] border border-[#CBD5E1] transition-colors flex items-center gap-2"
           >
-            <span className={`w-2 h-2 rounded-full ${includeTests ? 'bg-[#00E3A5]' : 'bg-gray-500'}`}></span>
-            <span>{includeTests ? 'Simulaciones visibles en historial' : 'Simulaciones ocultas'}</span>
+            <span className={`w-2 h-2 rounded-full ${includeTests ? 'bg-[#16A34A]' : 'bg-[#94A3B8]'}`}></span>
+            <span>{includeTests ? 'Simulaciones visibles' : 'Simulaciones ocultas'}</span>
           </button>
         )}
       </div>

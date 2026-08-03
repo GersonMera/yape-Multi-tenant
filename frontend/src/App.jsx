@@ -294,74 +294,74 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#170A24] flex flex-col md:flex-row text-gray-100 selection:bg-purple-500 selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row text-[#0F172A]">
       <audio ref={audioRef} src="/sounds/yape_alert.mp3" preload="auto"></audio>
 
-      {/* SIDEBAR CORPORATIVO YAPE COMMAND CENTER */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-purple-500/25 p-5 shrink-0">
+      {/* SIDEBAR CORPORATIVO INSTITUCIONAL YAPE */}
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#3B144D] p-5 shrink-0">
         <div className="space-y-7">
           {/* Brand & Store */}
-          <div className="flex items-center gap-3.5 px-2">
-            <div className="w-11 h-11 bg-gradient-to-br from-[#8B2FE5] to-[#661DAB] rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-600/40 border border-purple-400/30">
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-10 h-10 bg-[#7C3AED] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-sm">
               Y
             </div>
             <div className="overflow-hidden">
-              <span className="font-extrabold text-white tracking-tight block text-sm truncate">
+              <span className="font-bold text-white tracking-tight block text-sm truncate">
                 {tenant?.nombre_negocio || user?.nombre_negocio || 'Mi Comercio'}
               </span>
-              <span className="text-[10px] text-[#00E3A5] font-mono font-bold uppercase tracking-widest block mt-0.5">
-                💜 YAPE POS CONTROL
+              <span className="text-[11px] text-[#D8B4FE] font-medium block mt-0.5">
+                Yape POS Control
               </span>
             </div>
           </div>
 
           {/* Nav en el Sidebar */}
-          <nav className="space-y-2">
-            <p className="text-[10px] font-black text-purple-300/60 uppercase tracking-widest px-3 mb-2">
+          <nav className="space-y-1.5">
+            <p className="text-[10px] font-bold text-[#D8B4FE]/70 uppercase tracking-wider px-3 mb-2">
               Módulos de Caja
             </p>
             
             <button
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-lg shadow-purple-600/40 border border-purple-400/30"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#7C3AED] text-white shadow-sm"
             >
-              <span className="text-sm">⚡</span>
+              <span>⚡</span>
               <span>Recepción en Vivo</span>
             </button>
 
             <button
               onClick={() => setIsCloseModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-purple-300/80 hover:text-white hover:bg-white/5 transition-all"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#E9D5FF] hover:text-white hover:bg-[#3B144D] transition-all"
             >
-              <span className="text-sm">📊</span>
+              <span>📊</span>
               <span>Cierre de Caja ({getDateLabel()})</span>
             </button>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-purple-300/80 hover:text-white hover:bg-white/5 transition-all"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-[#E9D5FF] hover:text-white hover:bg-[#3B144D] transition-all"
             >
-              <span className="text-sm">🏢</span>
+              <span>🏢</span>
               <span>Credenciales & API</span>
             </button>
 
             <div className="pt-2">
               <button
                 onClick={toggleVoice}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold border transition-all ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
                   voiceEnabled 
-                    ? 'yape-badge-verified shadow-md shadow-teal-500/10' 
-                    : 'bg-[#221034] text-gray-400 border-purple-500/20'
+                    ? 'bg-[#3B144D] text-[#BBF7D0] border-[#86EFAC]/40' 
+                    : 'bg-[#21092B] text-gray-400 border-[#3B144D]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <span>{voiceEnabled ? '🔊' : '🔇'}</span>
                   <span>Voz de Alerta</span>
                 </div>
-                <span className="text-[10px] font-mono tracking-wider">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
+                <span className="text-[10px] font-mono font-medium">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
               </button>
               <button
                 onClick={testVoice}
-                className="w-full text-left text-[10px] text-purple-300 hover:text-[#00E3A5] px-3.5 pt-1.5 transition-colors underline font-medium"
+                className="w-full text-left text-[11px] text-[#D8B4FE] hover:text-white px-3 pt-1.5 transition-colors underline"
               >
                 🔊 Probar volumen de voz TTS
               </button>
@@ -371,7 +371,7 @@ function App() {
               <button
                 onClick={handleSimulate}
                 disabled={simulating}
-                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-all disabled:opacity-50 mt-2 border border-amber-500/30"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 transition-all disabled:opacity-50 mt-2 border border-amber-400/40"
               >
                 <span>⚡</span>
                 <span>{simulating ? 'Simulando pago...' : 'Simular Yape (S/ 15.50)'}</span>
@@ -381,15 +381,15 @@ function App() {
         </div>
 
         {/* Perfil / Sesión en el Sidebar */}
-        <div className="pt-6 border-t border-purple-500/20 mt-6 space-y-3">
+        <div className="pt-6 border-t border-[#3B144D] mt-6 space-y-3">
           <div className="px-2">
             <p className="text-xs font-bold text-white truncate">{user?.email}</p>
-            <p className="text-[10px] text-purple-300 font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio / Tienda'}</p>
+            <p className="text-[10px] text-[#D8B4FE] font-mono">Rol: {user?.rol === 'admin' ? 'Super Admin' : 'Comercio / Tienda'}</p>
           </div>
 
           <button
             onClick={logout}
-            className="w-full bg-[#231236] hover:bg-red-500/15 hover:text-red-400 text-purple-300 border border-purple-500/30 text-xs font-bold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-[#21092B] hover:bg-red-500/20 hover:text-red-300 text-[#D8B4FE] border border-[#3B144D] text-xs font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
             <span>🚪</span>
             <span>Cerrar Sesión</span>
@@ -401,14 +401,14 @@ function App() {
       <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
         {/* Banner de Auditoría del Super Admin */}
         {viewingTenant && (
-          <div className="bg-gradient-to-r from-[#4A154B] to-[#36113A] border-b border-purple-400/40 text-purple-100 px-6 py-3 flex items-center justify-between text-xs font-semibold shadow-md">
+          <div className="bg-[#FAF5FF] border-b border-[#E9D5FF] text-[#6B21A8] px-6 py-3 flex items-center justify-between text-xs font-semibold">
             <div className="flex items-center gap-2">
               <span>👑</span>
-              <span>Modo Auditoría Super Admin — Viendo la Caja de: <strong className="text-white underline">{viewingTenant.nombre_negocio}</strong></span>
+              <span>Modo Auditoría Super Admin — Viendo la Caja de: <strong className="text-[#581C87] underline">{viewingTenant.nombre_negocio}</strong></span>
             </div>
             <button
               onClick={() => setViewingTenant(null)}
-              className="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-lg transition-colors"
+              className="bg-[#6B21A8] text-white hover:bg-[#581C87] px-3 py-1 rounded-lg transition-colors font-medium"
             >
               Volver al Panel Admin
             </button>
@@ -416,17 +416,17 @@ function App() {
         )}
 
         {/* Header Principal de Caja */}
-        <header className="h-16 border-b border-purple-500/25 px-6 sm:px-10 flex items-center justify-between bg-[#1A0C2A]/85 backdrop-blur-xl sticky top-0 z-20">
+        <header className="h-16 border-b border-[#E2E8F0] px-6 sm:px-10 flex items-center justify-between bg-white sticky top-0 z-20 shadow-xs">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-purple-300/70 uppercase tracking-wider">Terminal de Cobro</span>
-            <span className="text-purple-400/40">/</span>
-            <span className="text-xs font-bold text-white">{tenant?.nombre_negocio || 'Caja Principal'}</span>
+            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Terminal de Cobro</span>
+            <span className="text-[#CBD5E1]">/</span>
+            <span className="text-xs font-bold text-[#0F172A]">{tenant?.nombre_negocio || 'Caja Principal'}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="yape-badge-verified px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider inline-flex items-center gap-2 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-[#00E3A5] animate-pulse"></span>
-              <span>SISTEMA YAPE VERIFICADO</span>
+            <span className="yape-badge-verified px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+              <span>SISTEMA VERIFICADO</span>
             </span>
           </div>
         </header>
@@ -434,45 +434,45 @@ function App() {
         {/* Contenido Completo del POS */}
         <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
           {/* Selector de Fechas (Filtros en el POS) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#24113A]/70 backdrop-blur-md border border-purple-500/30 p-2.5 rounded-2xl shadow-xl shadow-purple-950/40">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-purple-200 px-3 uppercase tracking-wider">Período:</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-[#E2E8F0] p-2.5 rounded-xl shadow-xs">
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="text-xs font-bold text-[#64748B] px-3 uppercase tracking-wider">Período:</span>
               <button
                 onClick={() => setDateFilter('today')}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
+                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'today'
-                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
-                    : 'text-purple-300 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                    : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
                 Hoy
               </button>
               <button
                 onClick={() => setDateFilter('yesterday')}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
+                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'yesterday'
-                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
-                    : 'text-purple-300 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                    : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
                 Ayer
               </button>
               <button
                 onClick={() => setDateFilter('last_7_days')}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
+                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'last_7_days'
-                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
-                    : 'text-purple-300 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                    : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
                 Últimos 7 Días
               </button>
               <button
                 onClick={() => setDateFilter('last_30_days')}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
+                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
                   dateFilter === 'last_30_days'
-                    ? 'bg-gradient-to-r from-[#8B2FE5] to-[#661DAB] text-white shadow-md shadow-purple-600/40 border border-purple-400/30'
-                    : 'text-purple-300 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                    : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
                 Últimos 30 Días
@@ -482,7 +482,7 @@ function App() {
             <button
               onClick={exportToCSV}
               disabled={!transactions || transactions.length === 0}
-              className="bg-gradient-to-r from-[#2B1344] to-[#200D34] hover:from-[#361A54] hover:to-[#2B1245] text-purple-200 hover:text-white border border-purple-400/30 text-xs font-bold px-4 py-2 rounded-xl transition-all disabled:opacity-40 flex items-center gap-2 shadow-sm"
+              className="bg-white hover:bg-[#F8FAFC] text-[#334155] hover:text-[#0F172A] border border-[#CBD5E1] text-xs font-semibold px-4 py-2 rounded-xl transition-all disabled:opacity-40 flex items-center gap-2 shadow-xs"
               title="Descargar historial filtrado a archivo CSV / Excel"
             >
               <span>📥</span>
@@ -490,7 +490,7 @@ function App() {
             </button>
           </div>
 
-          {/* Resumen Contable Yape Command Center */}
+          {/* Resumen Contable Minimalista */}
           <CashierSummary 
             summary={summary} 
             includeTests={includeTests} 
@@ -502,14 +502,14 @@ function App() {
 
           {/* Historial en Vivo */}
           <section className="space-y-4">
-            <div className="flex justify-between items-center border-b border-purple-500/25 pb-3.5">
+            <div className="flex justify-between items-center border-b border-[#E2E8F0] pb-3.5">
               <div>
-                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                  <span>HISTORIAL DE COBROS YAPE ({getDateLabel()})</span>
+                <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider">
+                  Historial de Recaudación ({getDateLabel()})
                 </h3>
-                <p className="text-xs text-purple-300/80 mt-0.5">Transacciones Yape entrantes verificadas en tiempo real por el servidor interbancario</p>
+                <p className="text-xs text-[#64748B] mt-0.5">Transacciones Yape entrantes verificadas y autenticadas</p>
               </div>
-              <span className="yape-badge-verified text-xs font-mono font-bold px-3 py-1 rounded-xl">
+              <span className="bg-[#F3E8FF] text-[#6D28D9] text-xs font-mono font-semibold px-3 py-1 rounded-md border border-[#E9D5FF]">
                 {transactions.length} pagos
               </span>
             </div>

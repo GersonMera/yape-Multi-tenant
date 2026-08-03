@@ -1,11 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-yape: #8B2FE5;
-  --color-yape-dark: #661DAB;
-  --color-yape-light: #AD6DFF;
-  --color-yape-mint: #00E3A5;
-  --color-yape-royal: #170A24;
+  --color-yape: #7C3AED;
+  --color-yape-dark: #5B21B6;
+  --color-yape-light: #A78BFA;
   
   --animate-fade-in: fadeIn 0.25s ease-out;
   --animate-fade-in-up: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -17,7 +15,7 @@
   }
 
   @keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(12px); }
+    0% { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
   }
 }
@@ -32,82 +30,73 @@
   }
 
   body {
-    background: radial-gradient(circle at 15% 10%, rgba(139, 47, 229, 0.22) 0%, transparent 45%),
-                radial-gradient(circle at 85% 85%, rgba(0, 227, 165, 0.12) 0%, transparent 45%),
-                #170A24;
-    background-attachment: fixed;
-    color: #F3F4F6;
+    background-color: #F8FAFC;
+    color: #0F172A;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
-  /* Barras de desplazamiento corporativas Yape */
+  /* Barras de desplazamiento limpias y profesionales */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #170A24;
+    background: #F1F5F9;
   }
   ::-webkit-scrollbar-thumb {
-    background: #3B1C5B;
+    background: #CBD5E1;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #552782;
+    background: #94A3B8;
   }
 }
 
 @layer utilities {
   .saas-card {
-    background: rgba(36, 17, 56, 0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(139, 47, 229, 0.30);
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(139, 47, 229, 0.18);
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    color: #0F172A;
   }
   
   .saas-card-hover {
-    background: rgba(36, 17, 56, 0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(139, 47, 229, 0.30);
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
-    transition: all 0.2s ease;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+    transition: all 0.15s ease;
+    color: #0F172A;
   }
 
   .saas-card-hover:hover {
-    background: rgba(48, 23, 74, 0.85);
-    border-color: rgba(0, 227, 165, 0.40);
-    box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(0, 227, 165, 0.20);
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
   }
 
   .saas-sidebar {
-    background: rgba(26, 12, 42, 0.92);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(139, 47, 229, 0.28);
+    background: #280C34;
+    border-right: 1px solid #381248;
+    color: #F8FAFC;
   }
 
   .saas-input {
-    background: rgba(22, 10, 36, 0.85);
-    border: 1px solid rgba(139, 47, 229, 0.35);
-    color: #F3F4F6;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #0F172A;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .saas-input:focus {
     outline: none;
-    border-color: #00E3A5;
-    box-shadow: 0 0 0 2px rgba(0, 227, 165, 0.20);
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
   }
 
   .yape-badge-verified {
-    background: rgba(0, 227, 165, 0.12);
-    border: 1px solid rgba(0, 227, 165, 0.40);
-    color: #00E3A5;
-    text-shadow: 0 0 10px rgba(0, 227, 165, 0.4);
-  }
-
-  .yape-glow-text {
-    color: #00E3A5;
-    text-shadow: 0 0 16px rgba(0, 227, 165, 0.45);
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    color: #15803D;
   }
 }
