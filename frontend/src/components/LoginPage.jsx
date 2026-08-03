@@ -98,50 +98,52 @@ export const LoginPage = () => {
           </button>
         </form>
 
-        {/* Cuentas Demo en formato corporativo limpio */}
-        <div className="border-t border-[#E2E8F0] pt-6 space-y-3">
-          <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider text-center">
-            Cuentas de Demostración Rápida
-          </p>
+        {/* Cuentas Demo — solo visibles en modo demo */}
+        {import.meta.env.VITE_MODE === 'demo' && (
+          <div className="border-t border-[#E2E8F0] pt-6 space-y-3">
+            <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider text-center">
+              Cuentas de Demostración Rápida
+            </p>
 
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => fillDemo('admin@yape.com', 'admin123')}
-              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155] hover:text-[#0F172A] text-xs font-medium py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#7C3AED]"></span>
-                <span>Super Administrador (SaaS Owner)</span>
-              </span>
-              <span className="font-mono text-[#64748B] text-[11px]">admin@yape.com</span>
-            </button>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => fillDemo('admin@yape.com', 'admin123')}
+                className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155] hover:text-[#0F172A] text-xs font-medium py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#7C3AED]"></span>
+                  <span>Super Administrador (SaaS Owner)</span>
+                </span>
+                <span className="font-mono text-[#64748B] text-[11px]">admin@yape.com</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => fillDemo('bodega@prueba.com', '123456')}
-              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155] hover:text-[#0F172A] text-xs font-medium py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
-                <span>Mi Bodega VIP (Sucursal 1)</span>
-              </span>
-              <span className="font-mono text-[#64748B] text-[11px]">bodega@...</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('bodega@prueba.com', '123456')}
+                className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155] hover:text-[#0F172A] text-xs font-medium py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+                  <span>Mi Bodega VIP (Sucursal 1)</span>
+                </span>
+                <span className="font-mono text-[#64748B] text-[11px]">bodega@...</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => fillDemo('farmacia@prueba.com', '123456')}
-              className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155] hover:text-[#0F172A] text-xs font-medium py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#0284C7]"></span>
-                <span>Farmacia VIP 24/7 (Sucursal 2)</span>
-              </span>
-              <span className="font-mono text-[#64748B] text-[11px]">farmacia@...</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('farmacia@prueba.com', '123456')}
+                className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155] hover:text-[#0F172A] text-xs font-medium py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#0284C7]"></span>
+                  <span>Farmacia VIP 24/7 (Sucursal 2)</span>
+                </span>
+                <span className="font-mono text-[#64748B] text-[11px]">farmacia@...</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

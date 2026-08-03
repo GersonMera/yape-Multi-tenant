@@ -156,7 +156,7 @@ function App() {
     }
   };
 
-  const isDemoMode = import.meta.env.VITE_MODE === 'demo';
+  const isDemoMode = import.meta.env.VITE_MODE === 'demo' && user?.rol === 'admin';
 
   const handleNewYape = useCallback((newTx) => {
     if (audioRef.current) {
