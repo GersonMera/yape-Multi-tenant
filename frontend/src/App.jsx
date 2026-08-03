@@ -50,12 +50,50 @@ function App() {
     return `${enteros} ${enteros === 1 ? 'sol' : 'soles'} con ${centimos} ${centimos === 1 ? 'céntimo' : 'céntimos'}`;
   };
 
-  const speakYape = useCallback((monto, remitente) => {
+  const formatHoraParaVoz = (fechaHoraStr) => {
+    let dateObj;
+    if (fechaHoraStr && typeof fechaHoraStr === 'string') {
+      dateObj = new Date(fechaHoraStr.replace(' ', 'T'));
+      if (isNaN(dateObj.getTime())) {
+        dateObj = new Date();
+      }
+    } else {
+      dateObj = new Date();
+    }
+
+    const hours = dateObj.getHours();
+    const minutes = dateObj.getMinutes();
+
+    let hora12 = hours % 12;
+    if (hora12 === 0) hora12 = 12;
+
+    let periodo = "de la mañana";
+    if (hours >= 12 && hours < 19) {
+      periodo = "de la tarde";
+    } else if (hours >= 19 || hours < 5) {
+      periodo = "de la noche";
+    }
+
+    let textoHora = (hora12 === 1) ? "a la una" : `a las ${hora12}`;
+
+    if (minutes === 0) {
+      textoHora += " en punto";
+    } else if (minutes === 1) {
+      textoHora += " y un minuto";
+    } else {
+      textoHora += ` y ${minutes}`;
+    }
+
+    return `${textoHora} ${periodo}`;
+  };
+
+  const speakYape = useCallback((monto, remitente, fechaHora) => {
     if (voiceEnabled && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const fraseMonto = formatMontoParaVoz(monto);
       const nombreStr = remitente || 'Cliente';
-      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de ${nombreStr}!`);
+      const fraseHora = formatHoraParaVoz(fechaHora);
+      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de ${nombreStr}, ${fraseHora}!`);
       utterance.lang = 'es-ES';
       utterance.rate = 0.96;
 
@@ -73,7 +111,8 @@ function App() {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const fraseMonto = formatMontoParaVoz(15.50);
-      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de Juan Pérez!`);
+      const fraseHora = formatHoraParaVoz(new Date().toISOString());
+      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de Juan Pérez, ${fraseHora}!`);
       utterance.lang = 'es-ES';
       utterance.rate = 0.96;
 
@@ -100,7 +139,7 @@ function App() {
 
     // Disparar voz TTS con un ligero retraso de 850ms para no superponerse con el timbre de alerta
     setTimeout(() => {
-      speakYape(newTx.monto, newTx.remitente);
+      speakYape(newTx.monto, newTx.remitente, newTx.fecha_hora_yape || newTx.fecha_hora);
     }, 850);
 
     const isTest = Boolean(newTx.is_test);
