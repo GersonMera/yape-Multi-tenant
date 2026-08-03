@@ -39,14 +39,32 @@ function App() {
     localStorage.setItem('yape_voice_enabled', String(next));
   };
 
+  const formatMontoParaVoz = (monto) => {
+    const num = parseFloat(monto || 0);
+    const enteros = Math.floor(num);
+    const centimos = Math.round((num - enteros) * 100);
+
+    if (centimos === 0) {
+      return `${enteros} ${enteros === 1 ? 'sol' : 'soles'}`;
+    }
+    return `${enteros} ${enteros === 1 ? 'sol' : 'soles'} con ${centimos} ${centimos === 1 ? 'céntimo' : 'céntimos'}`;
+  };
+
   const speakYape = useCallback((monto, remitente) => {
     if (voiceEnabled && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const montoStr = parseFloat(monto || 0).toFixed(2);
+      const fraseMonto = formatMontoParaVoz(monto);
       const nombreStr = remitente || 'Cliente';
-      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${montoStr} soles recibido de ${nombreStr}!`);
+      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de ${nombreStr}!`);
       utterance.lang = 'es-ES';
-      utterance.rate = 1.05;
+      utterance.rate = 0.96;
+
+      const voices = window.speechSynthesis.getVoices();
+      const spanishVoice = voices.find(v => v.lang.startsWith('es-PE') || v.lang.startsWith('es-MX') || v.lang.startsWith('es'));
+      if (spanishVoice) {
+        utterance.voice = spanishVoice;
+      }
+
       window.speechSynthesis.speak(utterance);
     }
   }, [voiceEnabled]);
@@ -54,9 +72,17 @@ function App() {
   const testVoice = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance('¡Yape de 15.50 soles recibido de Juan Pérez!');
+      const fraseMonto = formatMontoParaVoz(15.50);
+      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${fraseMonto} recibido de Juan Pérez!`);
       utterance.lang = 'es-ES';
-      utterance.rate = 1.05;
+      utterance.rate = 0.96;
+
+      const voices = window.speechSynthesis.getVoices();
+      const spanishVoice = voices.find(v => v.lang.startsWith('es-PE') || v.lang.startsWith('es-MX') || v.lang.startsWith('es'));
+      if (spanishVoice) {
+        utterance.voice = spanishVoice;
+      }
+
       window.speechSynthesis.speak(utterance);
     } else {
       alert('Tu navegador no soporta síntesis de voz Web Speech.');
@@ -72,8 +98,10 @@ function App() {
       });
     }
 
-    // Disparar voz TTS de caja en vivo
-    speakYape(newTx.monto, newTx.remitente);
+    // Disparar voz TTS con un ligero retraso de 850ms para no superponerse con el timbre de alerta
+    setTimeout(() => {
+      speakYape(newTx.monto, newTx.remitente);
+    }, 850);
 
     const isTest = Boolean(newTx.is_test);
     const montoNum = parseFloat(newTx.monto) || 0;
