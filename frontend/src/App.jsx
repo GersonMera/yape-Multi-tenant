@@ -229,6 +229,20 @@ function App() {
     }
   };
 
+  const formatFechaHora12 = (fechaStr) => {
+    if (!fechaStr) return '';
+    const date = new Date(fechaStr.replace(' ', 'T'));
+    if (isNaN(date.getTime())) return fechaStr;
+    const fecha = date.toLocaleDateString('es-PE');
+    const hora = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    return `${fecha} ${hora}`;
+  };
+
   const exportToCSV = () => {
     if (!transactions || transactions.length === 0) return;
     const headers = ['ID', 'Monto (PEN)', 'Remitente', 'Fecha y Hora', 'Es Prueba'];
@@ -236,7 +250,7 @@ function App() {
       `#${tx.id}`,
       parseFloat(tx.monto || 0).toFixed(2),
       `"${(tx.remitente || 'Desconocido').replace(/"/g, '""')}"`,
-      `"${tx.fecha_hora || ''}"`,
+      `"${formatFechaHora12(tx.fecha_hora || '')}"`,
       tx.is_test ? 'Si' : 'No'
     ]);
     const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + 

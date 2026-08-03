@@ -1,5 +1,17 @@
 import React from 'react';
 
+const formatHora12 = (fechaStr) => {
+  if (!fechaStr) return '';
+  const date = new Date(fechaStr.replace(' ', 'T'));
+  if (isNaN(date.getTime())) return fechaStr;
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+};
+
 export const YapeCard = ({ yape }) => {
   return (
     <div className="glass rounded-2xl p-6 mb-4 flex items-center justify-between transform transition-all duration-500 hover:scale-[1.02] hover:bg-white/10 animate-fade-in-up group cursor-default">
@@ -17,7 +29,7 @@ export const YapeCard = ({ yape }) => {
             )}
           </div>
           <p className="text-gray-400 text-sm font-medium">
-            {new Date(yape.fecha_hora).toLocaleTimeString()} - Pago Validado
+            {formatHora12(yape.fecha_hora)} - Pago Validado
           </p>
         </div>
       </div>
