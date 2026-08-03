@@ -18,6 +18,8 @@
 
 ### ⚡ 3. Terminal POS de Cajero (Comercio / Tienda)
 - **Recepción en Vivo con WebSockets (Pusher):** Alertas de sonido instantáneas (`yape_alert.mp3`) sin necesidad de refrescar la página.
+- **🗣️ Alerta por Voz Inteligente (TTS):** Síntesis de voz nativa del navegador (*Web Speech API*) que pronuncia en voz alta el monto y nombre del cliente al recibir cada pago.
+- **📅 Filtros de Fecha & Exportación Contable:** Selector de periodos (Hoy, Ayer, Últimos 7 Días, Últimos 30 Días) con descarga inmediata en archivo **Excel / CSV**.
 - **📊 Ticket de Cierre de Caja Digital:** Módulo con facturación limpia y formato automático listo para copiar al portapapeles y enviar por **WhatsApp** o imprimir en PDF.
 - **⚡ Simulador Rápido Integrado:** Botón de simulación para pruebas de capacitación o demostraciones sin depender de MacroDroid.
 
