@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Requerir autenticación de admin
+// Requerir autenticación (comercio o admin)
 Config::requireAdminAuth();
 
 try {
@@ -39,32 +39,63 @@ try {
 $tenantId = getActiveTenantIdFromRequest(Config::DEFAULT_TENANT_ID);
 $includeTests = isset($_GET['include_tests']) && $_GET['include_tests'] == '1';
 
-// 1. Obtener resumen de recaudación del DÍA ACTUAL (CURRENT_DATE)
+// Filtro de Fechas
+$filter = $_GET['filter'] ?? 'today';
+$startDate = $_GET['start_date'] ?? null;
+$endDate = $_GET['end_date'] ?? null;
+
+$dateWhere = "DATE(fecha_hora_yape) >= CURRENT_DATE()";
+$params = [':id' => $tenantId];
+
+switch ($filter) {
+    case 'yesterday':
+        $dateWhere = "DATE(fecha_hora_yape) = SUBDATE(CURRENT_DATE(), 1)";
+        break;
+    case 'last_7_days':
+        $dateWhere = "DATE(fecha_hora_yape) >= SUBDATE(CURRENT_DATE(), 7)";
+        break;
+    case 'last_30_days':
+        $dateWhere = "DATE(fecha_hora_yape) >= SUBDATE(CURRENT_DATE(), 30)";
+        break;
+    case 'custom':
+        if ($startDate && $endDate) {
+            $dateWhere = "DATE(fecha_hora_yape) BETWEEN :start_date AND :end_date";
+            $params[':start_date'] = $startDate;
+            $params[':end_date'] = $endDate;
+        }
+        break;
+    case 'today':
+    default:
+        $dateWhere = "DATE(fecha_hora_yape) = CURRENT_DATE()";
+        break;
+}
+
+// 1. Obtener resumen de recaudación filtrado por fecha
 $summarySql = "SELECT 
     COALESCE(SUM(CASE WHEN is_test = 0 THEN monto ELSE 0 END), 0) AS total_real,
     COUNT(CASE WHEN is_test = 0 THEN 1 END) AS count_real,
     COALESCE(SUM(CASE WHEN is_test = 1 THEN monto ELSE 0 END), 0) AS total_test,
     COUNT(CASE WHEN is_test = 1 THEN 1 END) AS count_test
 FROM transacciones_yape
-WHERE tenant_id = :id AND DATE(fecha_hora_yape) >= CURRENT_DATE()";
+WHERE tenant_id = :id AND $dateWhere";
 
 $summaryStmt = $pdo->prepare($summarySql);
-$summaryStmt->execute([':id' => $tenantId]);
+$summaryStmt->execute($params);
 $summary = $summaryStmt->fetch(\PDO::FETCH_ASSOC);
 
-// 2. Obtener lista de transacciones del día
+// 2. Obtener lista de transacciones filtrada por fecha
 $listSql = "SELECT id, monto, remitente_nombre AS remitente, fecha_hora_yape AS fecha_hora, is_test
             FROM transacciones_yape
-            WHERE tenant_id = :id AND DATE(fecha_hora_yape) >= CURRENT_DATE()";
+            WHERE tenant_id = :id AND $dateWhere";
 
 if (!$includeTests) {
     $listSql .= " AND is_test = 0";
 }
 
-$listSql .= " ORDER BY fecha_hora_yape DESC, id DESC LIMIT 100";
+$listSql .= " ORDER BY fecha_hora_yape DESC, id DESC LIMIT 500";
 
 $listStmt = $pdo->prepare($listSql);
-$listStmt->execute([':id' => $tenantId]);
+$listStmt->execute($params);
 $transactions = $listStmt->fetchAll(\PDO::FETCH_ASSOC);
 
 // Normalizar tipos booleano de is_test en PHP array
@@ -83,7 +114,8 @@ echo json_encode([
             'total_test' => (float)($summary['total_test'] ?? 0),
             'count_test' => (int)($summary['count_test'] ?? 0),
         ],
-        'transactions' => $transactions
+        'transactions' => $transactions,
+        'filter_applied' => $filter
     ]
 ]);
 exit;

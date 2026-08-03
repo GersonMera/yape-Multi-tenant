@@ -25,6 +25,44 @@ function App() {
   const [summary, setSummary] = useState({ total_real: 0, count_real: 0, total_test: 0, count_test: 0 });
   const [includeTests, setIncludeTests] = useState(false);
 
+  // Filtro por Fechas: 'today' | 'yesterday' | 'last_7_days' | 'last_30_days'
+  const [dateFilter, setDateFilter] = useState('today');
+
+  // Voz Inteligente TTS
+  const [voiceEnabled, setVoiceEnabled] = useState(() => {
+    return localStorage.getItem('yape_voice_enabled') !== 'false';
+  });
+
+  const toggleVoice = () => {
+    const next = !voiceEnabled;
+    setVoiceEnabled(next);
+    localStorage.setItem('yape_voice_enabled', String(next));
+  };
+
+  const speakYape = useCallback((monto, remitente) => {
+    if (voiceEnabled && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const montoStr = parseFloat(monto || 0).toFixed(2);
+      const nombreStr = remitente || 'Cliente';
+      const utterance = new SpeechSynthesisUtterance(`¡Yape de ${montoStr} soles recibido de ${nombreStr}!`);
+      utterance.lang = 'es-ES';
+      utterance.rate = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [voiceEnabled]);
+
+  const testVoice = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance('¡Yape de 15.50 soles recibido de Juan Pérez!');
+      utterance.lang = 'es-ES';
+      utterance.rate = 1.05;
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Tu navegador no soporta síntesis de voz Web Speech.');
+    }
+  };
+
   const isDemoMode = import.meta.env.VITE_MODE === 'demo';
 
   const handleNewYape = useCallback((newTx) => {
@@ -33,6 +71,9 @@ function App() {
         console.warn("Navegador bloqueó el Autoplay del sonido.");
       });
     }
+
+    // Disparar voz TTS de caja en vivo
+    speakYape(newTx.monto, newTx.remitente);
 
     const isTest = Boolean(newTx.is_test);
     const montoNum = parseFloat(newTx.monto) || 0;
@@ -51,7 +92,7 @@ function App() {
       }
       return prev;
     });
-  }, [includeTests]);
+  }, [includeTests, speakYape]);
 
   usePusher(tenantId, handleNewYape);
 
@@ -81,7 +122,7 @@ function App() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`/yape/backend/public/api/transactions.php?include_tests=${includeTests ? '1' : '0'}&tenant_id=${activeTenantId}`, {
+        const res = await fetch(`/yape/backend/public/api/transactions.php?filter=${dateFilter}&include_tests=${includeTests ? '1' : '0'}&tenant_id=${activeTenantId}`, {
           method: 'GET',
           headers: {
             'X-Admin-Secret': import.meta.env.VITE_ADMIN_SECRET || 'demo_admin_secret',
@@ -100,7 +141,7 @@ function App() {
     if (user) {
       fetchHistory();
     }
-  }, [includeTests, token, activeTenantId, user]);
+  }, [includeTests, dateFilter, token, activeTenantId, user]);
 
   const handleSimulate = async () => {
     setSimulating(true);
@@ -121,6 +162,27 @@ function App() {
     }
   };
 
+  const exportToCSV = () => {
+    if (!transactions || transactions.length === 0) return;
+    const headers = ['ID', 'Monto (PEN)', 'Remitente', 'Fecha y Hora', 'Es Prueba'];
+    const rows = transactions.map(tx => [
+      `#${tx.id}`,
+      parseFloat(tx.monto || 0).toFixed(2),
+      `"${(tx.remitente || 'Desconocido').replace(/"/g, '""')}"`,
+      `"${tx.fecha_hora || ''}"`,
+      tx.is_test ? 'Si' : 'No'
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + 
+      [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Recaudacion_Yape_${tenant?.nombre_negocio || 'POS'}_${dateFilter}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#08090E] flex items-center justify-center text-white font-semibold">
@@ -139,6 +201,16 @@ function App() {
   if (user.rol === 'admin' && !viewingTenant) {
     return <SuperAdminDashboard />;
   }
+
+  const getDateLabel = () => {
+    switch (dateFilter) {
+      case 'yesterday': return 'Ayer';
+      case 'last_7_days': return 'Últimos 7 Días';
+      case 'last_30_days': return 'Últimos 30 Días';
+      case 'today':
+      default: return 'Hoy';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#08090E] flex flex-col md:flex-row text-gray-100">
@@ -178,7 +250,7 @@ function App() {
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-[#12141F] transition-all"
             >
               <span>📊</span>
-              <span>Cierre de Caja (Hoy)</span>
+              <span>Cierre de Caja ({getDateLabel()})</span>
             </button>
 
             <button
@@ -188,6 +260,29 @@ function App() {
               <span>🏢</span>
               <span>Credenciales & API</span>
             </button>
+
+            <div className="pt-2">
+              <button
+                onClick={toggleVoice}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                  voiceEnabled 
+                    ? 'bg-purple-500/10 text-purple-300 border-purple-500/30' 
+                    : 'bg-[#12131F] text-gray-400 border-[#1E2030]'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span>{voiceEnabled ? '🔊' : '🔇'}</span>
+                  <span>Voz de Alerta</span>
+                </div>
+                <span className="text-[10px] font-mono">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
+              </button>
+              <button
+                onClick={testVoice}
+                className="w-full text-left text-[10px] text-gray-500 hover:text-purple-400 px-3 pt-1 transition-colors underline"
+              >
+                🔊 Probar volumen de voz TTS
+              </button>
+            </div>
 
             {isDemoMode && (
               <button
@@ -255,6 +350,63 @@ function App() {
 
         {/* Contenido Completo del POS */}
         <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
+          {/* Selector de Fechas (Filtros en el POS) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0D0E16] border border-[#1E2030] p-2 rounded-2xl">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-semibold text-gray-400 px-3">Período:</span>
+              <button
+                onClick={() => setDateFilter('today')}
+                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                  dateFilter === 'today'
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                }`}
+              >
+                Hoy
+              </button>
+              <button
+                onClick={() => setDateFilter('yesterday')}
+                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                  dateFilter === 'yesterday'
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                }`}
+              >
+                Ayer
+              </button>
+              <button
+                onClick={() => setDateFilter('last_7_days')}
+                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                  dateFilter === 'last_7_days'
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                }`}
+              >
+                Últimos 7 Días
+              </button>
+              <button
+                onClick={() => setDateFilter('last_30_days')}
+                className={`text-xs font-semibold px-4 py-1.5 rounded-xl transition-all ${
+                  dateFilter === 'last_30_days'
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white hover:bg-[#141624]'
+                }`}
+              >
+                Últimos 30 Días
+              </button>
+            </div>
+
+            <button
+              onClick={exportToCSV}
+              disabled={!transactions || transactions.length === 0}
+              className="bg-[#12131F] hover:bg-[#181A2A] text-gray-200 hover:text-white border border-[#212338] text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors disabled:opacity-40 flex items-center gap-2"
+              title="Descargar historial filtrado a archivo CSV / Excel"
+            >
+              <span>📥</span>
+              <span>Exportar Excel/CSV</span>
+            </button>
+          </div>
+
           {/* Resumen Contable Sobrio */}
           <CashierSummary 
             summary={summary} 
@@ -262,6 +414,7 @@ function App() {
             onToggleTests={setIncludeTests} 
             isDemoMode={isDemoMode}
             onOpenCloseModal={() => setIsCloseModalOpen(true)}
+            dateLabel={getDateLabel()}
           />
 
           {/* Historial en Vivo */}
@@ -269,7 +422,7 @@ function App() {
             <div className="flex justify-between items-center border-b border-[#171926] pb-3">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Historial de Recaudación (Hoy)
+                  Historial de Recaudación ({getDateLabel()})
                 </h3>
                 <p className="text-xs text-gray-400">Transacciones entrantes verificadas en tiempo real</p>
               </div>
@@ -281,7 +434,7 @@ function App() {
             {transactions.length === 0 ? (
               <div className="saas-card rounded-2xl py-16 text-center border-dashed border-[#1E2030]">
                 <p className="text-sm font-semibold text-gray-300">
-                  {includeTests ? 'Sin cobros ni pruebas registrados hoy' : 'Esperando el primer Yape real del día...'}
+                  {includeTests ? 'Sin cobros ni pruebas registrados en este periodo' : `No hay pagos reales en el periodo: ${getDateLabel()}`}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Los pagos validados por MacroDroid aparecerán en esta lista al instante

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMode, onOpenCloseModal }) => {
+export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMode, onOpenCloseModal, dateLabel = 'Hoy' }) => {
   const totalReal = summary?.total_real || 0;
   const countReal = summary?.count_real || 0;
   const totalTest = summary?.total_test || 0;
@@ -14,7 +14,7 @@ export const CashierSummary = ({ summary, includeTests, onToggleTests, isDemoMod
           <div className="space-y-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>Recaudación Real (Hoy)</span>
+              <span>Recaudación Real ({dateLabel})</span>
             </span>
             <div className="text-4xl font-mono font-bold text-white tracking-tight">
               S/ {totalReal.toFixed(2)}
