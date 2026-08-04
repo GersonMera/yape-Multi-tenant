@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.YapePOS" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/yape_purple</item>
+        <item name="colorPrimaryDark">@color/yape_purple_dark</item>
+        <item name="colorAccent">@color/yape_green</item>
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:statusBarColor">@color/yape_purple</item>
+        <item name="android:navigationBarColor">@color/bg_primary</item>
+    </style>
+</resources>
