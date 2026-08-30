@@ -94,7 +94,8 @@ class MainActivity : AppCompatActivity() {
                     serverUrl = prefs.serverUrl,
                     apiToken = prefs.apiToken,
                     monto = "1.00",
-                    remitente = "Prueba desde App Android"
+                    remitente = "Prueba desde App Android",
+                    isTest = true
                 )
 
                 handler.post {

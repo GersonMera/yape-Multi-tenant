@@ -115,20 +115,23 @@ class WebhookController {
             $this->sendResponse(['status' => 'error', 'message' => 'Unprocessable Entity: Invalid amount'], 422);
         }
 
+        $is_test = !empty($data['is_test']) ? 1 : 0;
+
         // 6. Insertar en la Base de Datos
         try {
             // Usamos INSERT IGNORE para aprovechar el índice UNIQUE. 
-            // Si MacroDroid manda 2 veces el mismo JSON por mala red, el 2do intento será ignorado.
+            // Si MacroDroid o la app mandan 2 veces el mismo JSON por mala red, el 2do intento será ignorado.
             $sql = "INSERT IGNORE INTO transacciones_yape 
                     (tenant_id, monto, remitente_nombre, fecha_hora_yape, is_test) 
-                    VALUES (:tenant_id, :monto, :remitente, :fecha_hora, 0)";
+                    VALUES (:tenant_id, :monto, :remitente, :fecha_hora, :is_test)";
             
             $insertStmt = $this->pdo->prepare($sql);
             $insertStmt->execute([
                 ':tenant_id'  => $tenant_id,
                 ':monto'      => $monto,
                 ':remitente'  => $remitente,
-                ':fecha_hora' => $fecha_hora
+                ':fecha_hora' => $fecha_hora,
+                ':is_test'    => $is_test
             ]);
 
             if ($insertStmt->rowCount() > 0) {
@@ -139,7 +142,7 @@ class WebhookController {
                     'monto' => $monto,
                     'remitente' => $remitente,
                     'fecha_hora' => $fecha_hora,
-                    'is_test' => false
+                    'is_test' => (bool)$is_test
                 ];
                 
                 $this->pusher->trigger($canal, $evento, $payload);

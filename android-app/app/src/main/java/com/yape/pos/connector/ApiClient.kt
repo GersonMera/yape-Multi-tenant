@@ -33,7 +33,8 @@ class ApiClient {
         serverUrl: String,
         apiToken: String,
         monto: String,
-        remitente: String
+        remitente: String,
+        isTest: Boolean = false
     ): Pair<Boolean, String> {
         return try {
             val fechaHora = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -43,6 +44,7 @@ class ApiClient {
                 put("monto", monto)
                 put("remitente", remitente)
                 put("fecha_hora", fechaHora)
+                put("is_test", isTest)
             }
 
             val body = json.toString().toRequestBody(JSON_MEDIA)
