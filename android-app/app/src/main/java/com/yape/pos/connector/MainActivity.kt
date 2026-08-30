@@ -114,10 +114,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Resetear configuración
+        // Cambiar configuración
         btnReset.setOnClickListener {
-            prefs.clearConfig()
-            Toast.makeText(this, "Configuración borrada", Toast.LENGTH_SHORT).show()
+            prefs.isConfigured = false
             updateUI()
         }
 
