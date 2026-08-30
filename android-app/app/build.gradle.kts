@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.yape.pos.connector"
     compileSdk = 34
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.yape.pos.connector"
