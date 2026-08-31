@@ -11,7 +11,10 @@ import {
   IconWhatsApp,
   IconLock,
   IconRefresh,
-  IconActivity
+  IconActivity,
+  IconEdit,
+  IconTrash,
+  IconAlertCircle
 } from './Icons';
 
 export const SuperAdminDashboard = () => {
@@ -25,7 +28,7 @@ export const SuperAdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'vigente' | 'por_vencer' | 'vencido'
 
-  // Modal Nuevo Comercio
+  // Modal Nuevo Comercio (Create)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formName, setFormName] = useState('');
   const [formEmail, setFormEmail] = useState('');
@@ -35,13 +38,29 @@ export const SuperAdminDashboard = () => {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
 
+  // Modal Editar Comercio (Update)
+  const [editTenant, setEditTenant] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPass, setEditPass] = useState('');
+  const [editCorreoYape, setEditCorreoYape] = useState('');
+  const [editDiaCorteVal, setEditDiaCorteVal] = useState(30);
+  const [editFechaVencVal, setEditFechaVencVal] = useState('');
+  const [editEstadoVal, setEditEstadoVal] = useState('Activo');
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState(null);
+
+  // Modal Eliminar Comercio (Delete)
+  const [deleteTenant, setDeleteTenant] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
   // Modal de Renovación Inteligente (Modo A vs Modo B)
   const [renewTenant, setRenewTenant] = useState(null);
   const [renewMode, setRenewMode] = useState('from_today'); // 'from_today' (Modo A) | 'from_due_date' | 'custom'
   const [customDate, setCustomDate] = useState('');
   const [renewing, setRenewing] = useState(false);
 
-  // Modal de Configurar Corte Mensual
+  // Modal de Configurar Corte Rápido
   const [editCorteTenant, setEditCorteTenant] = useState(null);
   const [editDiaCorte, setEditDiaCorte] = useState(30);
   const [editFechaVenc, setEditFechaVenc] = useState('');
@@ -76,6 +95,7 @@ export const SuperAdminDashboard = () => {
     fetchTenants();
   }, [token]);
 
+  // CREATE TENANT
   const handleCreateTenant = async (e) => {
     e.preventDefault();
     setCreating(true);
@@ -112,6 +132,91 @@ export const SuperAdminDashboard = () => {
     }
   };
 
+  // OPEN EDIT MODAL
+  const openEditModal = (t) => {
+    setEditTenant(t);
+    setEditName(t.nombre_negocio || '');
+    setEditEmail(t.email || '');
+    setEditPass('');
+    setEditCorreoYape(t.correo_recepcion_yape || '');
+    setEditDiaCorteVal(t.dia_corte_mensual || 30);
+    setEditFechaVencVal(t.fecha_vencimiento || '');
+    setEditEstadoVal(t.estado || 'Activo');
+    setEditError(null);
+  };
+
+  // UPDATE TENANT
+  const handleSaveEditTenant = async (e) => {
+    e.preventDefault();
+    if (!editTenant) return;
+    setSavingEdit(true);
+    setEditError(null);
+    try {
+      const payload = {
+        action: 'update_tenant',
+        tenant_id: editTenant.id,
+        nombre_negocio: editName,
+        email: editEmail,
+        correo_recepcion_yape: editCorreoYape,
+        dia_corte_mensual: parseInt(editDiaCorteVal, 10),
+        fecha_vencimiento: editFechaVencVal,
+        estado: editEstadoVal
+      };
+      if (editPass.trim()) {
+        payload.password = editPass.trim();
+      }
+      const res = await fetch('/yape/backend/public/api/admin.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token
+        },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok || json.status === 'error') {
+        throw new Error(json.message || 'Error al actualizar comercio');
+      }
+      setEditTenant(null);
+      fetchTenants();
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  // DELETE TENANT
+  const handleExecuteDeleteTenant = async () => {
+    if (!deleteTenant) return;
+    setDeleting(true);
+    try {
+      const res = await fetch('/yape/backend/public/api/admin.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token
+        },
+        body: JSON.stringify({
+          action: 'delete_tenant',
+          tenant_id: deleteTenant.id
+        })
+      });
+      const json = await res.json();
+      if (json.status === 'success') {
+        setDeleteTenant(null);
+        fetchTenants();
+      } else {
+        alert(json.message || 'Error al eliminar comercio');
+      }
+    } catch (e) {
+      console.error('Error al eliminar:', e);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // TOGGLE STATUS
   const handleToggleStatus = async (tenantId, currentStatus) => {
     const newStatus = currentStatus === 'Activo' ? 'Suspendido' : 'Activo';
     try {
@@ -160,7 +265,7 @@ export const SuperAdminDashboard = () => {
     }
   };
 
-  // GUARDAR CONFIGURACIÓN DE CORTE MANUAL
+  // GUARDAR CONFIGURACIÓN DE CORTE RÁPIDO
   const handleSaveCorte = async (e) => {
     e.preventDefault();
     if (!editCorteTenant) return;
@@ -558,7 +663,7 @@ export const SuperAdminDashboard = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* VISTA 2: DIRECTORIO & SUSCRIPCIONES (Gestión de Tiendas y Facturación) */}
+        {/* VISTA 2: DIRECTORIO & SUSCRIPCIONES (CRUD Completo de Comercios) */}
         {/* ========================================================================= */}
         {activeTab === 'comercios' && (
           <div className="p-6 sm:p-10 space-y-6 max-w-7xl w-full mx-auto animate-fade-in">
@@ -567,17 +672,19 @@ export const SuperAdminDashboard = () => {
               <div>
                 <h2 className="text-lg font-bold text-[#0F172A]">Directorio de Cajas & Facturación Mensual</h2>
                 <p className="text-xs text-[#64748B] mt-0.5">
-                  Administra las fechas de corte de cada comercio, ejecuta renovaciones en 1 clic y audita cajas
+                  Administra, edita o elimina comercios, controla días de corte y ejecuta renovaciones en 1 clic
                 </p>
               </div>
 
-              <button
-                onClick={fetchTenants}
-                className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F8FAFC] px-3.5 py-2 rounded-xl border border-[#CBD5E1] transition-colors inline-flex items-center gap-1.5 shadow-xs"
-              >
-                <IconRefresh className="w-3.5 h-3.5" />
-                <span>Actualizar Datos</span>
-              </button>
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={fetchTenants}
+                  className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F8FAFC] px-3.5 py-2 rounded-xl border border-[#CBD5E1] transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                >
+                  <IconRefresh className="w-3.5 h-3.5" />
+                  <span>Actualizar Datos</span>
+                </button>
+              </div>
             </div>
 
             {/* Barra de Filtros Rápidos & Buscador */}
@@ -642,7 +749,7 @@ export const SuperAdminDashboard = () => {
               </div>
             </div>
 
-            {/* Tabla de Comercios con Gestión de Suscripción */}
+            {/* Tabla de Comercios con CRUD Completo */}
             <div className="saas-card rounded-xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs">
               {loading ? (
                 <div className="p-12 text-center text-xs text-[#64748B]">Cargando datos de comercios y suscripciones...</div>
@@ -662,7 +769,7 @@ export const SuperAdminDashboard = () => {
                         <th className="py-3.5 px-4">Fecha Límite</th>
                         <th className="py-3.5 px-4">Estado Suscripción</th>
                         <th className="py-3.5 px-4 text-right">Recaudado (PEN)</th>
-                        <th className="py-3.5 px-4 text-center">Acciones de Cobro & Caja</th>
+                        <th className="py-3.5 px-4 text-center">Gestión & Acciones</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#E2E8F0]">
@@ -711,29 +818,26 @@ export const SuperAdminDashboard = () => {
                                   setRenewTenant(t);
                                   setRenewMode('from_today');
                                 }}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
                                 title="Renovar 30 días completos a partir de hoy (Modo A)"
                               >
                                 <span>+30d Renovar</span>
                               </button>
 
-                              {/* Botón Ajustar Corte */}
+                              {/* Botón EDITAR COMERCIO (CRUD UPDATE) */}
                               <button
-                                onClick={() => {
-                                  setEditCorteTenant(t);
-                                  setEditDiaCorte(t.dia_corte_mensual || 30);
-                                  setEditFechaVenc(t.fecha_vencimiento || '');
-                                }}
-                                className="bg-white hover:bg-[#F1F5F9] text-[#334155] border border-[#CBD5E1] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all"
-                                title="Modificar día de corte o fecha límite manual"
+                                onClick={() => openEditModal(t)}
+                                className="bg-white hover:bg-blue-50 text-blue-700 hover:text-blue-900 border border-blue-200 text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1 shadow-2xs"
+                                title="Editar datos del comercio, correo, contraseña o corte"
                               >
-                                <IconCalendar className="w-3.5 h-3.5" />
+                                <IconEdit className="w-3.5 h-3.5" />
+                                <span>Editar</span>
                               </button>
 
                               {/* Botón Auditar Caja */}
                               <button
                                 onClick={() => setViewingTenant(t)}
-                                className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all inline-flex items-center gap-1"
+                                className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1 shadow-2xs"
                                 title="Auditar pantalla del cajero"
                               >
                                 <IconEye className="w-3.5 h-3.5" />
@@ -743,7 +847,7 @@ export const SuperAdminDashboard = () => {
                               {/* Botón Suspender / Activar */}
                               <button
                                 onClick={() => handleToggleStatus(t.id, t.estado)}
-                                className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-all ${
+                                className={`text-[11px] font-semibold px-2 py-1.5 rounded-lg border transition-all shadow-2xs ${
                                   t.estado === 'Activo'
                                     ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
                                     : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
@@ -751,6 +855,15 @@ export const SuperAdminDashboard = () => {
                                 title={t.estado === 'Activo' ? 'Suspender temporalmente' : 'Activar acceso'}
                               >
                                 {t.estado === 'Activo' ? 'Pausar' : 'Activar'}
+                              </button>
+
+                              {/* Botón ELIMINAR COMERCIO (CRUD DELETE) */}
+                              <button
+                                onClick={() => setDeleteTenant(t)}
+                                className="bg-white hover:bg-red-50 text-red-600 hover:text-red-800 border border-red-200 text-[11px] font-semibold p-1.5 rounded-lg transition-all shadow-2xs inline-flex items-center"
+                                title="Eliminar comercio definitivamente"
+                              >
+                                <IconTrash className="w-3.5 h-3.5" />
                               </button>
                             </td>
                           </tr>
@@ -764,6 +877,186 @@ export const SuperAdminDashboard = () => {
           </div>
         )}
       </main>
+
+      {/* ========================================================================= */}
+      {/* MODAL EDITAR COMERCIO (CRUD UPDATE) */}
+      {/* ========================================================================= */}
+      {editTenant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-lg bg-white rounded-2xl p-6 sm:p-7 border border-[#E2E8F0] space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
+              <div>
+                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  Edición de Comercio
+                </span>
+                <h3 className="text-base font-bold text-[#0F172A] mt-1">
+                  Editar: {editTenant.nombre_negocio}
+                </h3>
+              </div>
+              <button onClick={() => setEditTenant(null)} className="text-[#64748B] hover:text-[#0F172A] font-bold">✕</button>
+            </div>
+
+            {editError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-medium">
+                {editError}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveEditTenant} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-semibold text-[#334155] block mb-1">Nombre del Comercio / Tienda</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm font-semibold"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-semibold text-[#334155] block mb-1">Correo de Acceso (Login)</label>
+                  <input
+                    type="email"
+                    required
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    className="w-full saas-input rounded-xl px-3 py-2 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-[#334155] block mb-1">Nueva Contraseña (Opcional)</label>
+                  <input
+                    type="text"
+                    value={editPass}
+                    onChange={(e) => setEditPass(e.target.value)}
+                    placeholder="En blanco para no cambiar"
+                    className="w-full saas-input rounded-xl px-3 py-2 text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-[#334155] block mb-1">Correo Receptor Notificaciones Yape</label>
+                <input
+                  type="email"
+                  value={editCorreoYape}
+                  onChange={(e) => setEditCorreoYape(e.target.value)}
+                  placeholder="pagos@comercio.com"
+                  className="w-full saas-input rounded-xl px-3.5 py-2 text-xs font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="font-semibold text-[#334155] block mb-1">Día de Corte</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    required
+                    value={editDiaCorteVal}
+                    onChange={(e) => setEditDiaCorteVal(e.target.value)}
+                    className="w-full saas-input rounded-xl px-3 py-2 text-xs font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-[#334155] block mb-1">Fecha Límite</label>
+                  <input
+                    type="date"
+                    required
+                    value={editFechaVencVal}
+                    onChange={(e) => setEditFechaVencVal(e.target.value)}
+                    className="w-full saas-input rounded-xl px-3 py-2 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-[#334155] block mb-1">Estado</label>
+                  <select
+                    value={editEstadoVal}
+                    onChange={(e) => setEditEstadoVal(e.target.value)}
+                    className="w-full saas-input rounded-xl px-3 py-2 text-xs font-semibold"
+                  >
+                    <option value="Activo">🟢 Activo</option>
+                    <option value="Suspendido">🔴 Suspendido</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3 border-t border-[#E2E8F0]">
+                <button
+                  type="button"
+                  onClick={() => setEditTenant(null)}
+                  className="flex-1 bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1] font-semibold py-2.5 rounded-xl text-xs transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEdit}
+                  className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  {savingEdit ? 'Guardando...' : 'Actualizar Comercio'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL ELIMINAR COMERCIO (CRUD DELETE) */}
+      {/* ========================================================================= */}
+      {deleteTenant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 sm:p-7 border border-[#E2E8F0] space-y-5 shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+              <IconTrash className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="text-base font-bold text-[#0F172A]">
+                ¿Eliminar este comercio definitivamente?
+              </h3>
+              <p className="text-xs text-[#64748B]">
+                Estás a punto de borrar a <strong className="text-[#0F172A]">{deleteTenant.nombre_negocio}</strong> (<span className="font-mono">{deleteTenant.email}</span>).
+              </p>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3.5 rounded-xl flex items-start gap-2.5">
+              <IconAlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
+              <div className="space-y-1">
+                <span className="font-bold block">Esta acción no se puede deshacer</span>
+                <p className="text-[11px] leading-relaxed">
+                  Se eliminará permanentemente la cuenta, sus credenciales y todo el historial de cobros y transacciones Yape registradas para este negocio.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTenant(null)}
+                className="flex-1 bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1] font-semibold py-2.5 rounded-xl text-xs transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleExecuteDeleteTenant}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2"
+              >
+                {deleting ? 'Eliminando...' : 'Sí, Eliminar Comercio'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL DE RENOVACIÓN INTELIGENTE (MODO A vs MODO B) */}
       {renewTenant && (
@@ -901,65 +1194,6 @@ export const SuperAdminDashboard = () => {
         </div>
       )}
 
-      {/* MODAL CONFIGURAR CORTE MENSUAL */}
-      {editCorteTenant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-md bg-white rounded-2xl p-6 border border-[#E2E8F0] space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
-              <div>
-                <h3 className="text-sm font-bold text-[#0F172A]">Configurar Ciclo de Facturación</h3>
-                <p className="text-xs text-[#64748B]">{editCorteTenant.nombre_negocio}</p>
-              </div>
-              <button onClick={() => setEditCorteTenant(null)} className="text-[#64748B] hover:text-[#0F172A] font-bold">✕</button>
-            </div>
-
-            <form onSubmit={handleSaveCorte} className="space-y-4 text-xs">
-              <div>
-                <label className="font-semibold text-[#334155] block mb-1">Día de Corte Mensual (1 al 31)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="31"
-                  required
-                  value={editDiaCorte}
-                  onChange={(e) => setEditDiaCorte(e.target.value)}
-                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm font-bold"
-                />
-                <p className="text-[11px] text-[#64748B] mt-1">El sistema verificará el corte en este día de cada mes.</p>
-              </div>
-
-              <div>
-                <label className="font-semibold text-[#334155] block mb-1">Fecha de Vencimiento Actual</label>
-                <input
-                  type="date"
-                  required
-                  value={editFechaVenc}
-                  onChange={(e) => setEditFechaVenc(e.target.value)}
-                  className="w-full saas-input rounded-xl px-4 py-2.5 text-sm"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setEditCorteTenant(null)}
-                  className="flex-1 bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1] font-semibold py-2.5 rounded-xl transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingCorte}
-                  className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold py-2.5 rounded-xl transition-all shadow-sm"
-                >
-                  {savingCorte ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* MODAL CONFIGURAR NÚMERO WHATSAPP SOPORTE */}
       {isWpModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
@@ -1009,7 +1243,7 @@ export const SuperAdminDashboard = () => {
         </div>
       )}
 
-      {/* MODAL DE NUEVO COMERCIO CON DÍA DE CORTE */}
+      {/* MODAL DE NUEVO COMERCIO CON DÍA DE CORTE (CRUD CREATE) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
           <div className="w-full max-w-md bg-white rounded-2xl p-7 border border-[#E2E8F0] space-y-6 shadow-2xl">

@@ -283,6 +283,124 @@ if ($action === 'update_subscription_settings') {
     exit;
 }
 
+// Acción: EDITAR DATOS DEL COMERCIO (Update)
+if ($action === 'update_tenant') {
+    $tenantId = (int)($input['tenant_id'] ?? 0);
+    $nombre = trim($input['nombre_negocio'] ?? '');
+    $email = trim($input['email'] ?? '');
+    $correoYape = trim($input['correo_recepcion_yape'] ?? '');
+    $password = trim($input['password'] ?? '');
+    $diaCorte = isset($input['dia_corte_mensual']) ? (int)$input['dia_corte_mensual'] : null;
+    $fechaVenc = isset($input['fecha_vencimiento']) ? trim($input['fecha_vencimiento']) : null;
+    $estado = isset($input['estado']) ? trim($input['estado']) : null;
+
+    if ($tenantId <= 0) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'ID de comercio no válido']);
+        exit;
+    }
+
+    // Verificar existencia
+    $stmt = $pdo->prepare("SELECT id FROM tenants WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $tenantId]);
+    if (!$stmt->fetch()) {
+        http_response_code(404);
+        echo json_encode(['status' => 'error', 'message' => 'Comercio no encontrado']);
+        exit;
+    }
+
+    $fields = [];
+    $params = [':id' => $tenantId];
+
+    if (!empty($nombre)) {
+        $fields[] = "nombre_negocio = :nombre";
+        $params[':nombre'] = $nombre;
+    }
+    if (!empty($email)) {
+        $fields[] = "email = :email";
+        $params[':email'] = $email;
+    }
+    if (!empty($correoYape)) {
+        $fields[] = "correo_recepcion_yape = :correo_yape";
+        $params[':correo_yape'] = $correoYape;
+    }
+    if (!empty($password)) {
+        $fields[] = "password_hash = :pass";
+        $params[':pass'] = password_hash($password, PASSWORD_DEFAULT);
+    }
+    if ($diaCorte !== null && $diaCorte >= 1 && $diaCorte <= 31) {
+        $fields[] = "dia_corte_mensual = :dia_corte";
+        $params[':dia_corte'] = $diaCorte;
+    }
+    if (!empty($fechaVenc)) {
+        $fields[] = "fecha_vencimiento = :fecha_venc";
+        $params[':fecha_venc'] = $fechaVenc;
+    }
+    if ($estado === 'Activo' || $estado === 'Suspendido') {
+        $fields[] = "estado = :estado";
+        $params[':estado'] = $estado;
+    }
+
+    if (empty($fields)) {
+        echo json_encode(['status' => 'success', 'message' => 'No hubo campos que modificar']);
+        exit;
+    }
+
+    try {
+        $sql = "UPDATE tenants SET " . implode(', ', $fields) . " WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Comercio actualizado correctamente'
+        ]);
+        exit;
+    } catch (\PDOException $e) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'El correo o email ya está en uso por otro comercio']);
+        exit;
+    }
+}
+
+// Acción: ELIMINAR COMERCIO (Delete)
+if ($action === 'delete_tenant') {
+    $tenantId = (int)($input['tenant_id'] ?? 0);
+
+    if ($tenantId <= 0) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'ID de comercio no válido']);
+        exit;
+    }
+
+    // Verificar existencia
+    $stmt = $pdo->prepare("SELECT id, nombre_negocio FROM tenants WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $tenantId]);
+    $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        http_response_code(404);
+        echo json_encode(['status' => 'error', 'message' => 'Comercio no encontrado']);
+        exit;
+    }
+
+    try {
+        // Al eliminar el tenant, por ON DELETE CASCADE se eliminan automáticamente sus transacciones
+        $del = $pdo->prepare("DELETE FROM tenants WHERE id = :id");
+        $del->execute([':id' => $tenantId]);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => "El comercio '{$row['nombre_negocio']}' y todo su historial fueron eliminados correctamente"
+        ]);
+        exit;
+    } catch (\PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Error al eliminar el comercio de la base de datos']);
+        exit;
+    }
+}
+
 http_response_code(400);
 echo json_encode(['status' => 'error', 'message' => 'Acción de administración no reconocida']);
 exit;
