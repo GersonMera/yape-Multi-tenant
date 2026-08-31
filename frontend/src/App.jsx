@@ -61,9 +61,12 @@ function App() {
   const [startDate, setStartDate] = useState(getTodayDateStr());
   const [endDate, setEndDate] = useState(getTodayDateStr());
 
-  // Voz Inteligente TTS
+  // Voz Inteligente TTS Natural
   const [voiceEnabled, setVoiceEnabled] = useState(() => {
     return localStorage.getItem('yape_voice_enabled') !== 'false';
+  });
+  const [voiceGender, setVoiceGender] = useState(() => {
+    return localStorage.getItem('yape_voice_gender') || 'female';
   });
 
   const toggleVoice = () => {
@@ -87,79 +90,105 @@ function App() {
     return `${enteros} ${enteros === 1 ? 'sol' : 'soles'} con ${centimos} ${centimos === 1 ? 'céntimo' : 'céntimos'}`;
   };
 
-  const formatHoraParaVoz = (fechaHoraStr) => {
-    let dateObj;
-    if (fechaHoraStr && typeof fechaHoraStr === 'string') {
-      dateObj = new Date(fechaHoraStr.replace(' ', 'T'));
-      if (isNaN(dateObj.getTime())) {
-        dateObj = new Date();
-      }
-    } else {
-      dateObj = new Date();
+  const cleanCustomerName = (rawName) => {
+    if (!rawName) return '';
+    const clean = rawName.trim();
+    if (!clean || clean.toLowerCase() === 'desconocido' || clean.toLowerCase() === 'cliente') {
+      return '';
     }
-
-    let hours = dateObj.getHours();
-    const minutes = dateObj.getMinutes();
-    const periodo = hours >= 12 ? 'de la tarde' : 'de la mañana';
-
-    if (hours === 0) {
-      hours = 12;
-    } else if (hours > 12) {
-      hours -= 12;
+    // Tomar solo los dos primeros nombres para que sea una locución rápida y natural
+    const parts = clean.split(/\s+/).filter(Boolean);
+    if (parts.length > 2) {
+      return `${parts[0]} ${parts[1]}`;
     }
-
-    let textoHora = `${hours}`;
-    if (minutes === 0) {
-      textoHora += ' en punto';
-    } else if (minutes < 10) {
-      textoHora += ` y cero ${minutes}`;
-    } else {
-      textoHora += ` y ${minutes}`;
-    }
-
-    return `${textoHora} ${periodo}`;
+    return clean;
   };
 
-  const speakYape = useCallback((monto, remitente, fechaHora) => {
+  const getBestSpanishVoice = useCallback((preferredGender = 'female') => {
+    if (!('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    const spanishVoices = voices.filter(v => 
+      v.lang.startsWith('es-') || v.lang === 'es' || v.lang.startsWith('es_')
+    );
+    if (spanishVoices.length === 0) return voices[0];
+
+    const naturalKeywords = ['natural', 'online', 'neural', 'google', 'paulina', 'monica', 'dalia', 'salma'];
+
+    if (preferredGender === 'female') {
+      // 1. Buscar voz femenina natural / suave
+      const naturalFemale = spanishVoices.find(v => {
+        const n = v.name.toLowerCase();
+        return naturalKeywords.some(k => n.includes(k)) && !n.includes('jorge') && !n.includes('male') && !n.includes('raul');
+      });
+      if (naturalFemale) return naturalFemale;
+
+      // 2. Buscar cualquier femenina
+      const anyFemale = spanishVoices.find(v => {
+        const n = v.name.toLowerCase();
+        return n.includes('female') || n.includes('dalia') || n.includes('sabina') || n.includes('helena') || n.includes('paulina') || n.includes('monica');
+      });
+      if (anyFemale) return anyFemale;
+
+      return spanishVoices[0];
+    } else {
+      // 1. Buscar voz masculina natural
+      const naturalMale = spanishVoices.find(v => {
+        const n = v.name.toLowerCase();
+        return naturalKeywords.some(k => n.includes(k)) && (n.includes('male') || n.includes('jorge') || n.includes('alonso') || n.includes('raul'));
+      });
+      if (naturalMale) return naturalMale;
+
+      const anyMale = spanishVoices.find(v => {
+        const n = v.name.toLowerCase();
+        return n.includes('male') || n.includes('jorge') || n.includes('raul') || n.includes('pablo');
+      });
+      if (anyMale) return anyMale;
+
+      return spanishVoices[0];
+    }
+  }, []);
+
+  const speakYape = useCallback((monto, remitente) => {
     if (voiceEnabled && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const fraseMonto = formatMontoParaVoz(monto);
-      const nombreStr = remitente || 'Cliente';
-      const fraseHora = formatHoraParaVoz(fechaHora);
-      
-      // La frase introductoria (". . Nuevo pago Yape. . ") da tiempo al controlador de audio de Windows a activarse antes de pronunciar el monto, evitando que se corte
-      const textoVoz = `. . Nuevo pago Yape. . por ${fraseMonto}, de ${nombreStr}, a las ${fraseHora}.`;
+      const nombreCliente = cleanCustomerName(remitente);
+
+      // Frase amigable, alegre y directa
+      const textoVoz = nombreCliente
+        ? `¡Yape recibido! ${fraseMonto}, de ${nombreCliente}.`
+        : `¡Yape recibido! ${fraseMonto}.`;
 
       const utterance = new SpeechSynthesisUtterance(textoVoz);
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.96;
+      utterance.lang = 'es-PE';
+      utterance.pitch = voiceGender === 'female' ? 1.08 : 0.95; // Tono más cálido y dulce
+      utterance.rate = 1.02; // Ritmo dinámico
 
-      const voices = window.speechSynthesis.getVoices();
-      const spanishVoice = voices.find(v => v.lang.startsWith('es-PE') || v.lang.startsWith('es-MX') || v.lang.startsWith('es'));
-      if (spanishVoice) {
-        utterance.voice = spanishVoice;
+      const selectedVoice = getBestSpanishVoice(voiceGender);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
 
       window.speechSynthesis.speak(utterance);
     }
-  }, [voiceEnabled]);
+  }, [voiceEnabled, voiceGender, getBestSpanishVoice]);
 
-  const testVoice = () => {
+  const testVoice = (gender = voiceGender) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const fraseMonto = formatMontoParaVoz(15.50);
-      const fraseHora = formatHoraParaVoz(new Date().toISOString());
-      
-      const textoVoz = `. . Nuevo pago Yape. . por ${fraseMonto}, de Juan Pérez, a las ${fraseHora}.`;
+      const fraseMonto = formatMontoParaVoz(25.00);
+      const textoVoz = `¡Yape recibido! ${fraseMonto}, de Juan Pérez.`;
 
       const utterance = new SpeechSynthesisUtterance(textoVoz);
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.96;
+      utterance.lang = 'es-PE';
+      utterance.pitch = gender === 'female' ? 1.08 : 0.95;
+      utterance.rate = 1.02;
 
-      const voices = window.speechSynthesis.getVoices();
-      const spanishVoice = voices.find(v => v.lang.startsWith('es-PE') || v.lang.startsWith('es-MX') || v.lang.startsWith('es'));
-      if (spanishVoice) {
-        utterance.voice = spanishVoice;
+      const selectedVoice = getBestSpanishVoice(gender);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
 
       window.speechSynthesis.speak(utterance);
@@ -178,7 +207,7 @@ function App() {
     }
 
     // Invocación instantánea sin retrasos (0ms delay)
-    speakYape(newTx.monto, newTx.remitente, newTx.fecha_hora_yape || newTx.fecha_hora);
+    speakYape(newTx.monto, newTx.remitente);
 
     const isTest = Boolean(newTx.is_test);
     const montoNum = parseFloat(newTx.monto) || 0;
@@ -424,12 +453,12 @@ function App() {
               <span>Credenciales & API</span>
             </button>
 
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <button
                 onClick={toggleVoice}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
                   voiceEnabled 
-                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-2xs' 
                     : 'bg-[#F8FAFC] text-[#64748B] border-[#E2E8F0]'
                 }`}
               >
@@ -437,15 +466,54 @@ function App() {
                   {voiceEnabled ? <IconVolumeUp className="w-4 h-4 text-emerald-600 shrink-0" /> : <IconVolumeMute className="w-4 h-4 text-[#64748B] shrink-0" />}
                   <span>Voz de Alerta</span>
                 </div>
-                <span className="text-[10px] font-mono font-medium">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
+                <span className="text-[10px] font-mono font-bold">{voiceEnabled ? 'ACTIVA' : 'SILENCIO'}</span>
               </button>
-              <button
-                onClick={testVoice}
-                className="w-full text-left text-[11px] text-[#6D28D9] hover:text-[#5B21B6] px-3 pt-1.5 transition-colors underline flex items-center gap-1.5"
-              >
-                <IconVolumeUp className="w-3.5 h-3.5 shrink-0" />
-                <span>Probar volumen de voz TTS</span>
-              </button>
+
+              {voiceEnabled && (
+                <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-2.5 space-y-2 animate-fade-in">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-[#64748B]">
+                    <span>Tono de Voz:</span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => {
+                          setVoiceGender('female');
+                          localStorage.setItem('yape_voice_gender', 'female');
+                          testVoice('female');
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                          voiceGender === 'female'
+                            ? 'bg-[#7C3AED] text-white shadow-2xs'
+                            : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0]'
+                        }`}
+                      >
+                        👩 Femenina
+                      </button>
+                      <button
+                        onClick={() => {
+                          setVoiceGender('male');
+                          localStorage.setItem('yape_voice_gender', 'male');
+                          testVoice('male');
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                          voiceGender === 'male'
+                            ? 'bg-[#7C3AED] text-white shadow-2xs'
+                            : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0]'
+                        }`}
+                      >
+                        👨 Masculina
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => testVoice(voiceGender)}
+                    className="w-full text-center text-[11px] text-[#7C3AED] hover:text-[#6D28D9] font-semibold py-1 bg-white hover:bg-[#F1F5F9] rounded-lg border border-[#E2E8F0] transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <IconVolumeUp className="w-3.5 h-3.5" />
+                    <span>Escuchar prueba de voz</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {isDemoMode && (
