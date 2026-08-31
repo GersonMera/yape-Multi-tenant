@@ -7,6 +7,7 @@ import { CashierCloseModal } from './components/CashierCloseModal';
 import { useAuth } from './context/AuthContext';
 import { LoginPage } from './components/LoginPage';
 import { SuperAdminDashboard } from './components/SuperAdminDashboard';
+import { SubscriptionBlockedScreen } from './components/SubscriptionBlockedScreen';
 import { 
   IconActivity, 
   IconBarChart, 
@@ -201,28 +202,29 @@ function App() {
     }
   }, [transactions, lastNewId]);
 
-  useEffect(() => {
-    const fetchTenant = async () => {
-      try {
-        const res = await fetch(`/yape/backend/public/api/tenant.php?tenant_id=${activeTenantId}`, {
-          method: 'GET',
-          headers: {
-            'X-Admin-Secret': import.meta.env.VITE_ADMIN_SECRET || 'demo_admin_secret',
-            'X-Auth-Token': token || ''
-          }
-        });
-        const json = await res.json();
-        if (json.status === 'success') {
-          setTenant(json.data);
+  const fetchTenant = useCallback(async () => {
+    try {
+      const res = await fetch(`/yape/backend/public/api/tenant.php?tenant_id=${activeTenantId}`, {
+        method: 'GET',
+        headers: {
+          'X-Admin-Secret': import.meta.env.VITE_ADMIN_SECRET || 'demo_admin_secret',
+          'X-Auth-Token': token || ''
         }
-      } catch (e) {
-        console.warn('No se pudo cargar la información del Tenant:', e);
+      });
+      const json = await res.json();
+      if (json.status === 'success') {
+        setTenant(json.data);
       }
-    };
+    } catch (e) {
+      console.warn('No se pudo cargar la información del Tenant:', e);
+    }
+  }, [activeTenantId, token]);
+
+  useEffect(() => {
     if (user) {
       fetchTenant();
     }
-  }, [token, activeTenantId, user]);
+  }, [fetchTenant, user]);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -319,6 +321,21 @@ function App() {
 
   if (user.rol === 'admin' && !viewingTenant) {
     return <SuperAdminDashboard />;
+  }
+
+  const isSubscriptionExpired = Boolean(
+    tenant?.suscripcion?.is_expired || tenant?.estado === 'Suspendido'
+  );
+
+  // Si es un comercio afiliado y su suscripción está vencida o suspendida, se bloquea la pantalla
+  if (user.rol === 'comercio' && isSubscriptionExpired) {
+    return (
+      <SubscriptionBlockedScreen 
+        tenant={tenant} 
+        onLogout={logout} 
+        onRefresh={fetchTenant} 
+      />
+    );
   }
 
   const getDateLabel = () => {
@@ -450,6 +467,24 @@ function App() {
               className="bg-[#6B21A8] text-white hover:bg-[#581C87] px-3 py-1 rounded-lg transition-colors font-medium"
             >
               Volver al Panel Admin
+            </button>
+          </div>
+        )}
+
+        {/* Alerta de Suscripción Vencida para Super Admin */}
+        {viewingTenant && isSubscriptionExpired && (
+          <div className="bg-red-50 border-b border-red-200 text-red-700 px-6 py-2.5 flex items-center justify-between text-xs font-semibold">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0"></span>
+              <span>
+                <strong>Atención Super Admin:</strong> La suscripción de este comercio está <strong>{tenant?.suscripcion?.texto || 'VENCIDA'}</strong>. La pantalla del cajero se encuentra bloqueada actualmente.
+              </span>
+            </div>
+            <button
+              onClick={() => setViewingTenant(null)}
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors font-semibold text-[11px]"
+            >
+              Ir a Renovar en el Panel
             </button>
           </div>
         )}

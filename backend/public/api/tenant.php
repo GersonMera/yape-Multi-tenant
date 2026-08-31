@@ -8,8 +8,10 @@ $dotenv->load();
 
 require_once __DIR__ . '/../../src/config.php';
 require_once __DIR__ . '/../../src/AuthHelper.php';
+require_once __DIR__ . '/../../src/SubscriptionHelper.php';
 
 use App\Config;
+use App\SubscriptionHelper;
 use Pusher\Pusher;
 
 // Headers CORS para API REST
@@ -43,8 +45,8 @@ try {
 $tenantId = getActiveTenantIdFromRequest(Config::DEFAULT_TENANT_ID);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Retornar datos del tenant seguro (sin query param manipulable)
-    $stmt = $pdo->prepare("SELECT id, nombre_negocio, email, correo_recepcion_yape, api_token, estado FROM tenants WHERE id = :id LIMIT 1");
+    // Retornar datos del tenant con vigencia de suscripción
+    $stmt = $pdo->prepare("SELECT id, nombre_negocio, email, correo_recepcion_yape, api_token, estado, dia_corte_mensual, fecha_vencimiento, ultimo_pago_at FROM tenants WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $tenantId]);
     $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode(['status' => 'error', 'message' => 'Tenant no encontrado']);
         exit;
     }
+
+    $tenant['suscripcion'] = SubscriptionHelper::getStatus($tenant['fecha_vencimiento'], $tenant['estado']);
+    $tenant['whatsapp_soporte'] = SubscriptionHelper::getWhatsAppSupport($pdo);
 
     echo json_encode(['status' => 'success', 'data' => $tenant]);
     exit;

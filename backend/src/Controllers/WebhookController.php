@@ -62,8 +62,8 @@ class WebhookController {
 
         $api_token = $matches[1];
 
-        // 3. Validar el Token y obtener el Tenant ID
-        $stmt = $this->pdo->prepare("SELECT id, estado FROM tenants WHERE api_token = :token LIMIT 1");
+        // 3. Validar el Token y obtener el Tenant ID con vigencia de suscripción
+        $stmt = $this->pdo->prepare("SELECT id, estado, fecha_vencimiento FROM tenants WHERE api_token = :token LIMIT 1");
         $stmt->execute([':token' => $api_token]);
         $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -71,8 +71,9 @@ class WebhookController {
             $this->sendResponse(['status' => 'error', 'message' => 'Unauthorized: Invalid token'], 401);
         }
 
-        if ($tenant['estado'] !== 'Activo') {
-            $this->sendResponse(['status' => 'error', 'message' => 'Forbidden: Tenant subscription is suspended'], 403);
+        $isExpired = !empty($tenant['fecha_vencimiento']) && date('Y-m-d') > $tenant['fecha_vencimiento'];
+        if ($tenant['estado'] !== 'Activo' || $isExpired) {
+            $this->sendResponse(['status' => 'error', 'message' => 'Forbidden: Tenant subscription is expired or suspended'], 403);
         }
 
         $tenant_id = $tenant['id'];
