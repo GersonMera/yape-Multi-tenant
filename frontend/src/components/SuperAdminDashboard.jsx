@@ -54,9 +54,10 @@ export const SuperAdminDashboard = () => {
   const [deleteTenant, setDeleteTenant] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Modal de Renovación Inteligente (Modo A vs Modo B)
+  // Modal de Renovación Inteligente (Modo A vs Modo B con selector de N meses)
   const [renewTenant, setRenewTenant] = useState(null);
   const [renewMode, setRenewMode] = useState('from_today'); // 'from_today' (Modo A) | 'from_due_date' | 'custom'
+  const [renewMonths, setRenewMonths] = useState(1); // 1, 2, 3, 6, 12 o manual
   const [customDate, setCustomDate] = useState('');
   const [renewing, setRenewing] = useState(false);
 
@@ -248,6 +249,7 @@ export const SuperAdminDashboard = () => {
         body: JSON.stringify({
           tenant_id: renewTenant.id,
           mode: renewMode,
+          months: renewMonths,
           custom_date: customDate
         })
       });
@@ -335,12 +337,26 @@ export const SuperAdminDashboard = () => {
     }
   };
 
-  // Calcular fecha tentativa para el Modo A (+1 mes exacto a partir de hoy)
-  const getFechaModoA = () => {
+  // Calcular fecha tentativa para el Modo A (+N meses exactos a partir de hoy)
+  const getFechaModoA = (m = renewMonths) => {
+    const months = Math.max(1, parseInt(m, 10) || 1);
     const now = new Date();
     const day = now.getDate();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const daysInNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + months, 1);
+    const daysInNextMonth = new Date(now.getFullYear(), now.getMonth() + months + 1, 0).getDate();
+    const targetDay = Math.min(day, daysInNextMonth);
+    nextMonth.setDate(targetDay);
+    return nextMonth.toLocaleDateString('es-PE');
+  };
+
+  // Calcular fecha tentativa para el Modo B (+N meses sumados a su corte anterior)
+  const getFechaModoB = (m = renewMonths) => {
+    if (!renewTenant) return '';
+    const months = Math.max(1, parseInt(m, 10) || 1);
+    const baseDate = renewTenant.fecha_vencimiento ? new Date(renewTenant.fecha_vencimiento + 'T12:00:00') : new Date();
+    const day = renewTenant.dia_corte_mensual || baseDate.getDate();
+    const nextMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + months, 1);
+    const daysInNextMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + months + 1, 0).getDate();
     const targetDay = Math.min(day, daysInNextMonth);
     nextMonth.setDate(targetDay);
     return nextMonth.toLocaleDateString('es-PE');
@@ -889,11 +905,12 @@ export const SuperAdminDashboard = () => {
                                   onClick={() => {
                                     setRenewTenant(t);
                                     setRenewMode('from_today');
+                                    setRenewMonths(1);
                                   }}
                                   className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
-                                  title="Renovar 30 días completos a partir de hoy (Modo A)"
+                                  title="Renovar suscripción del comercio"
                                 >
-                                  <span>+30d Renovar</span>
+                                  <span>+ Renovar</span>
                                 </button>
 
                                 <button
@@ -1005,11 +1022,12 @@ export const SuperAdminDashboard = () => {
                                 onClick={() => {
                                   setRenewTenant(t);
                                   setRenewMode('from_today');
+                                  setRenewMonths(1);
                                 }}
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-xl transition-all shadow-xs inline-flex items-center justify-center gap-1.5"
                               >
                                 <IconRefresh className="w-3.5 h-3.5" />
-                                <span>+30d Renovar</span>
+                                <span>+ Renovar</span>
                               </button>
                             </div>
 
@@ -1250,12 +1268,72 @@ export const SuperAdminDashboard = () => {
               <button onClick={() => setRenewTenant(null)} className="text-[#64748B] hover:text-[#0F172A] font-bold">✕</button>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-xs text-[#475569]">
-                Selecciona la modalidad de cobro para reactivar el servicio de este comercio:
+            <div className="space-y-4">
+              {/* Selector de Cantidad de Meses a Renovar */}
+              <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-3.5 rounded-xl space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#0F172A]">¿Cuántos meses te pagó?:</span>
+                  
+                  {/* Stepper y número editable */}
+                  <div className="flex items-center gap-1.5 bg-white border border-[#CBD5E1] rounded-lg p-1 shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setRenewMonths(Math.max(1, renewMonths - 1))}
+                      className="w-6 h-6 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] font-bold text-xs flex items-center justify-center text-[#475569] transition-colors"
+                      title="Disminuir 1 mes"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      max="36"
+                      value={renewMonths}
+                      onChange={(e) => setRenewMonths(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      className="w-8 text-center font-bold text-xs text-[#0F172A] focus:outline-none"
+                    />
+                    <span className="text-[11px] text-[#64748B] pr-1">mes(es)</span>
+                    <button
+                      type="button"
+                      onClick={() => setRenewMonths(renewMonths + 1)}
+                      className="w-6 h-6 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] font-bold text-xs flex items-center justify-center text-[#475569] transition-colors"
+                      title="Aumentar 1 mes"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Chips de selección rápida */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { label: '1 Mes', val: 1 },
+                    { label: '2 Meses', val: 2 },
+                    { label: '3 Meses (Trimestral)', val: 3 },
+                    { label: '6 Meses (Semestral)', val: 6 },
+                    { label: '1 Año (Anual)', val: 12 }
+                  ].map(chip => (
+                    <button
+                      key={chip.val}
+                      type="button"
+                      onClick={() => setRenewMonths(chip.val)}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-lg transition-all ${
+                        renewMonths === chip.val
+                          ? 'bg-[#7C3AED] text-white shadow-2xs font-bold'
+                          : 'bg-white text-[#475569] border border-[#E2E8F0] hover:bg-[#F1F5F9]'
+                      }`}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-xs text-[#475569] pt-0.5">
+                Selecciona la modalidad de cobro para reactivar el servicio:
               </p>
 
-              {/* Opción A (Recomendada): 30 días desde HOY */}
+              {/* Opción A (Recomendada): N meses desde HOY */}
               <div 
                 onClick={() => setRenewMode('from_today')}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
@@ -1275,17 +1353,17 @@ export const SuperAdminDashboard = () => {
                         className="text-emerald-600 focus:ring-emerald-500"
                       />
                       <span className="text-xs font-bold text-[#0F172A]">
-                        🟢 Modo A: 1 Mes completo a partir de HOY (Recomendado)
+                        🟢 Modo A: {renewMonths} {renewMonths === 1 ? 'Mes' : 'Meses'} a partir de HOY (Recomendado)
                       </span>
                     </div>
                     <p className="text-xs text-[#64748B] pl-5">
-                      Ideal si el cliente estuvo bloqueado. Se le otorga el mes completo hasta el <strong className="text-emerald-700">{getFechaModoA()}</strong> y su nuevo día de corte mensual será el día {new Date().getDate()}.
+                      Ideal si el cliente estuvo bloqueado. Se le otorga el servicio hasta el <strong className="text-emerald-700 font-mono font-bold">{getFechaModoA(renewMonths)}</strong> y su nuevo día de corte mensual será el día {new Date().getDate()}.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Opción B: Mantener corte original */}
+              {/* Opción B: Sumar N meses al corte anterior */}
               <div 
                 onClick={() => setRenewMode('from_due_date')}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
@@ -1305,11 +1383,11 @@ export const SuperAdminDashboard = () => {
                         className="text-purple-600 focus:ring-purple-500"
                       />
                       <span className="text-xs font-bold text-[#0F172A]">
-                        🔵 Modo B: Mantener Día Fijo ({renewTenant.dia_corte_mensual || 30} de cada mes)
+                        🔵 Modo B: Sumar {renewMonths} {renewMonths === 1 ? 'Mes' : 'Meses'} a su fecha de corte anterior
                       </span>
                     </div>
                     <p className="text-xs text-[#64748B] pl-5">
-                      Suma 1 mes a su fecha de corte anterior para conservar su mismo día fijo de siempre.
+                      Suma {renewMonths} {renewMonths === 1 ? 'mes' : 'meses'} a su vencimiento anterior (hasta el <strong className="text-purple-700 font-mono font-bold">{getFechaModoB(renewMonths)}</strong>) conservando su día fijo {renewTenant.dia_corte_mensual || 30} de siempre.
                     </p>
                   </div>
                 </div>

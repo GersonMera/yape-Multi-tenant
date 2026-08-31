@@ -197,25 +197,26 @@ if ($action === 'renew_subscription') {
 
     $nuevaFecha = '';
     $nuevoDiaCorte = $currentTenant['dia_corte_mensual'] ?: 30;
+    $months = max(1, min(60, (int)($input['months'] ?? 1)));
 
     if ($mode === 'from_today') {
-        // Modo A: 1 mes calendario a partir de hoy (mismo día del próximo mes)
+        // Modo A: N meses a partir de hoy (preservando día exacto)
         $now = new \DateTime();
         $day = (int)$now->format('d');
         $next = clone $now;
-        $next->modify('first day of next month');
+        $next->modify("first day of +{$months} month");
         $target = min($day, (int)$next->format('t'));
         $next->setDate((int)$next->format('Y'), (int)$next->format('m'), $target);
 
         $nuevaFecha = $next->format('Y-m-d');
         $nuevoDiaCorte = $target;
     } elseif ($mode === 'from_due_date') {
-        // Modo B: +1 mes sumado a la fecha anterior de vencimiento
+        // Modo B: +N meses sumados a la fecha anterior de vencimiento
         $baseDate = !empty($currentTenant['fecha_vencimiento']) ? $currentTenant['fecha_vencimiento'] : date('Y-m-d');
         $now = new \DateTime($baseDate);
         $day = $currentTenant['dia_corte_mensual'] ? (int)$currentTenant['dia_corte_mensual'] : (int)$now->format('d');
         $next = clone $now;
-        $next->modify('first day of next month');
+        $next->modify("first day of +{$months} month");
         $target = min($day, (int)$next->format('t'));
         $next->setDate((int)$next->format('Y'), (int)$next->format('m'), $target);
 
@@ -230,7 +231,7 @@ if ($action === 'renew_subscription') {
         $now = new \DateTime();
         $day = (int)$now->format('d');
         $next = clone $now;
-        $next->modify('first day of next month');
+        $next->modify("first day of +{$months} month");
         $target = min($day, (int)$next->format('t'));
         $next->setDate((int)$next->format('Y'), (int)$next->format('m'), $target);
 
