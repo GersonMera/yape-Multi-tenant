@@ -48,21 +48,31 @@ $dateWhere = "DATE(fecha_hora_yape) >= CURRENT_DATE()";
 $params = [':id' => $tenantId];
 
 switch ($filter) {
-    case 'yesterday':
-        $dateWhere = "DATE(fecha_hora_yape) = SUBDATE(CURRENT_DATE(), 1)";
+    case 'specific_date':
+    case 'date':
+        if ($startDate) {
+            $dateWhere = "DATE(fecha_hora_yape) = :start_date";
+            $params[':start_date'] = $startDate;
+        } else {
+            $dateWhere = "DATE(fecha_hora_yape) = CURRENT_DATE()";
+        }
         break;
-    case 'last_7_days':
-        $dateWhere = "DATE(fecha_hora_yape) >= SUBDATE(CURRENT_DATE(), 7)";
-        break;
-    case 'last_30_days':
-        $dateWhere = "DATE(fecha_hora_yape) >= SUBDATE(CURRENT_DATE(), 30)";
-        break;
+    case 'range':
     case 'custom':
         if ($startDate && $endDate) {
             $dateWhere = "DATE(fecha_hora_yape) BETWEEN :start_date AND :end_date";
             $params[':start_date'] = $startDate;
             $params[':end_date'] = $endDate;
+        } elseif ($startDate) {
+            $dateWhere = "DATE(fecha_hora_yape) >= :start_date";
+            $params[':start_date'] = $startDate;
+        } elseif ($endDate) {
+            $dateWhere = "DATE(fecha_hora_yape) <= :end_date";
+            $params[':end_date'] = $endDate;
         }
+        break;
+    case 'yesterday':
+        $dateWhere = "DATE(fecha_hora_yape) = SUBDATE(CURRENT_DATE(), 1)";
         break;
     case 'today':
     default:

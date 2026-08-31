@@ -16,7 +16,8 @@ import {
   IconVolumeUp, 
   IconVolumeMute, 
   IconEye,
-  IconDownload
+  IconDownload,
+  IconCalendar
 } from './components/Icons';
 
 function App() {
@@ -47,8 +48,18 @@ function App() {
   const [summary, setSummary] = useState({ total_real: 0, count_real: 0, total_test: 0, count_test: 0 });
   const [includeTests, setIncludeTests] = useState(false);
 
-  // Filtro por Fechas: 'today' | 'yesterday' | 'last_7_days' | 'last_30_days'
-  const [dateFilter, setDateFilter] = useState('today');
+  // Filtro por Fechas: 'today' | 'specific' | 'range'
+  const [dateFilterMode, setDateFilterMode] = useState('today');
+  const getTodayDateStr = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const [specificDate, setSpecificDate] = useState(getTodayDateStr());
+  const [startDate, setStartDate] = useState(getTodayDateStr());
+  const [endDate, setEndDate] = useState(getTodayDateStr());
 
   // Voz Inteligente TTS
   const [voiceEnabled, setVoiceEnabled] = useState(() => {
@@ -229,7 +240,16 @@ function App() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`/yape/backend/public/api/transactions.php?filter=${dateFilter}&include_tests=${includeTests ? '1' : '0'}&tenant_id=${activeTenantId}`, {
+        let url = `/yape/backend/public/api/transactions.php?include_tests=${includeTests ? '1' : '0'}&tenant_id=${activeTenantId}`;
+        if (dateFilterMode === 'today') {
+          url += `&filter=today`;
+        } else if (dateFilterMode === 'specific') {
+          url += `&filter=specific_date&start_date=${specificDate}`;
+        } else if (dateFilterMode === 'range') {
+          url += `&filter=range&start_date=${startDate}&end_date=${endDate}`;
+        }
+
+        const res = await fetch(url, {
           method: 'GET',
           headers: {
             'X-Admin-Secret': import.meta.env.VITE_ADMIN_SECRET || 'demo_admin_secret',
@@ -248,7 +268,7 @@ function App() {
     if (user) {
       fetchHistory();
     }
-  }, [includeTests, dateFilter, token, activeTenantId, user]);
+  }, [includeTests, dateFilterMode, specificDate, startDate, endDate, token, activeTenantId, user]);
 
   const handleSimulate = async () => {
     setSimulating(true);
@@ -298,7 +318,7 @@ function App() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Recaudacion_Yape_${tenant?.nombre_negocio || 'POS'}_${dateFilter}.csv`);
+    link.setAttribute('download', `Recaudacion_Yape_${tenant?.nombre_negocio || 'POS'}_${dateFilterMode}_${getDateLabel().replace(/[/ ]/g, '_')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -339,13 +359,18 @@ function App() {
   }
 
   const getDateLabel = () => {
-    switch (dateFilter) {
-      case 'yesterday': return 'Ayer';
-      case 'last_7_days': return 'Últimos 7 Días';
-      case 'last_30_days': return 'Últimos 30 Días';
-      case 'today':
-      default: return 'Hoy';
+    if (dateFilterMode === 'today') return 'Hoy';
+    if (dateFilterMode === 'specific') {
+      const parts = specificDate.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return specificDate;
     }
+    if (dateFilterMode === 'range') {
+      const f1 = startDate ? startDate.split('-').reverse().join('/') : '';
+      const f2 = endDate ? endDate.split('-').reverse().join('/') : '';
+      return `${f1} al ${f2}`;
+    }
+    return 'Hoy';
   };
 
   return (
@@ -507,50 +532,85 @@ function App() {
 
         {/* Contenido Completo del POS */}
         <div className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
-          {/* Selector de Fechas (Filtros en el POS) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-[#E2E8F0] p-2.5 rounded-xl shadow-xs">
-            <div className="flex items-center gap-1 flex-wrap">
-              <span className="text-xs font-bold text-[#64748B] px-3 uppercase tracking-wider">Período:</span>
+          {/* Selector de Fechas Avanzado (Hoy / Fecha Específica / Rango de Fechas) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-[#E2E8F0] p-3 rounded-xl shadow-xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold text-[#64748B] px-2 uppercase tracking-wider">Período:</span>
+
+              {/* Botón Hoy */}
               <button
-                onClick={() => setDateFilter('today')}
-                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
-                  dateFilter === 'today'
-                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                onClick={() => setDateFilterMode('today')}
+                className={`text-xs font-semibold px-3.5 py-2 rounded-xl transition-all ${
+                  dateFilterMode === 'today'
+                    ? 'bg-[#7C3AED] text-white shadow-xs'
                     : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
                 Hoy
               </button>
+
+              {/* Botón Fecha Específica */}
               <button
-                onClick={() => setDateFilter('yesterday')}
-                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
-                  dateFilter === 'yesterday'
-                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                onClick={() => setDateFilterMode('specific')}
+                className={`text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                  dateFilterMode === 'specific'
+                    ? 'bg-[#7C3AED] text-white shadow-xs'
                     : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
-                Ayer
+                <IconCalendar className="w-3.5 h-3.5" />
+                <span>Fecha Específica</span>
               </button>
+
+              {/* Botón Rango de Fechas */}
               <button
-                onClick={() => setDateFilter('last_7_days')}
-                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
-                  dateFilter === 'last_7_days'
-                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                onClick={() => setDateFilterMode('range')}
+                className={`text-xs font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                  dateFilterMode === 'range'
+                    ? 'bg-[#7C3AED] text-white shadow-xs'
                     : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
                 }`}
               >
-                Últimos 7 Días
+                <span>Rango de Fechas</span>
               </button>
-              <button
-                onClick={() => setDateFilter('last_30_days')}
-                className={`text-xs font-semibold px-4 py-2 rounded-xl transition-all ${
-                  dateFilter === 'last_30_days'
-                    ? 'bg-[#7C3AED] text-white shadow-sm'
-                    : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]'
-                }`}
-              >
-                Últimos 30 Días
-              </button>
+
+              {/* Selector para Fecha Específica */}
+              {dateFilterMode === 'specific' && (
+                <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#CBD5E1] px-3 py-1.5 rounded-xl ml-1 animate-fade-in">
+                  <span className="text-[11px] font-bold text-[#64748B]">Día:</span>
+                  <input
+                    type="date"
+                    value={specificDate}
+                    onChange={(e) => setSpecificDate(e.target.value)}
+                    className="text-xs font-bold text-[#0F172A] bg-transparent outline-none cursor-pointer font-mono"
+                  />
+                </div>
+              )}
+
+              {/* Selectores para Rango de Fechas */}
+              {dateFilterMode === 'range' && (
+                <div className="flex items-center gap-2 ml-1 flex-wrap animate-fade-in">
+                  <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#CBD5E1] px-3 py-1.5 rounded-xl">
+                    <span className="text-[11px] font-bold text-[#64748B]">Desde:</span>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="text-xs font-bold text-[#0F172A] bg-transparent outline-none cursor-pointer font-mono"
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-[#94A3B8]">al</span>
+                  <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#CBD5E1] px-3 py-1.5 rounded-xl">
+                    <span className="text-[11px] font-bold text-[#64748B]">Hasta:</span>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="text-xs font-bold text-[#0F172A] bg-transparent outline-none cursor-pointer font-mono"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
@@ -652,6 +712,7 @@ function App() {
         summary={summary}
         tenant={tenant}
         transactions={transactions}
+        dateLabel={getDateLabel()}
       />
     </div>
   );

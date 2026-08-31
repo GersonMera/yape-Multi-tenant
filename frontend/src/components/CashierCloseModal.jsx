@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IconBarChart, IconFileText } from './Icons';
 
-export const CashierCloseModal = ({ isOpen, onClose, tenant, transactions = [], summary }) => {
+export const CashierCloseModal = ({ isOpen, onClose, tenant, transactions = [], summary, dateLabel }) => {
   const [copyMsg, setCopyMsg] = useState(false);
 
   if (!isOpen) return null;
@@ -24,7 +24,7 @@ export const CashierCloseModal = ({ isOpen, onClose, tenant, transactions = [], 
       `*REPORTE DE CIERRE DE CAJA - YAPE POS*`,
       `==================================`,
       `*Comercio:* ${tenant?.nombre_negocio || 'Panel de Caja'}`,
-      `*Fecha:* ${todayStr}`,
+      `*Período:* ${dateLabel || todayStr}`,
       `----------------------------------`,
       `*Cobros Reales Verificados:*`,
       `- Cantidad: ${countReal} transacciones`,
