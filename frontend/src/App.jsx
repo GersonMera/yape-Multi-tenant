@@ -27,6 +27,7 @@ function App() {
   const tenantId = activeTenantId;
 
   const audioRef = useRef(null);
+  const ttsAudioRef = useRef(null);
   const carouselRef = useRef(null);
   const [lastNewId, setLastNewId] = useState(null);
 
@@ -104,97 +105,54 @@ function App() {
     return clean;
   };
 
-  const getBestSpanishVoice = useCallback((preferredGender = 'female') => {
-    if (!('speechSynthesis' in window)) return null;
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices || voices.length === 0) return null;
-
-    const spanishVoices = voices.filter(v => 
-      v.lang.startsWith('es-') || v.lang === 'es' || v.lang.startsWith('es_')
-    );
-    if (spanishVoices.length === 0) return voices[0];
-
-    const naturalKeywords = ['natural', 'online', 'neural', 'google', 'paulina', 'monica', 'dalia', 'salma'];
-
-    if (preferredGender === 'female') {
-      // 1. Buscar voz femenina natural / suave
-      const naturalFemale = spanishVoices.find(v => {
-        const n = v.name.toLowerCase();
-        return naturalKeywords.some(k => n.includes(k)) && !n.includes('jorge') && !n.includes('male') && !n.includes('raul');
-      });
-      if (naturalFemale) return naturalFemale;
-
-      // 2. Buscar cualquier femenina
-      const anyFemale = spanishVoices.find(v => {
-        const n = v.name.toLowerCase();
-        return n.includes('female') || n.includes('dalia') || n.includes('sabina') || n.includes('helena') || n.includes('paulina') || n.includes('monica');
-      });
-      if (anyFemale) return anyFemale;
-
-      return spanishVoices[0];
-    } else {
-      // 1. Buscar voz masculina natural
-      const naturalMale = spanishVoices.find(v => {
-        const n = v.name.toLowerCase();
-        return naturalKeywords.some(k => n.includes(k)) && (n.includes('male') || n.includes('jorge') || n.includes('alonso') || n.includes('raul'));
-      });
-      if (naturalMale) return naturalMale;
-
-      const anyMale = spanishVoices.find(v => {
-        const n = v.name.toLowerCase();
-        return n.includes('male') || n.includes('jorge') || n.includes('raul') || n.includes('pablo');
-      });
-      if (anyMale) return anyMale;
-
-      return spanishVoices[0];
-    }
-  }, []);
-
   const speakYape = useCallback((monto, remitente) => {
-    if (voiceEnabled && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const fraseMonto = formatMontoParaVoz(monto);
-      const nombreCliente = cleanCustomerName(remitente);
+    if (!voiceEnabled) return;
 
-      // Frase amigable, alegre y directa
-      const textoVoz = nombreCliente
-        ? `¡Yape recibido! ${fraseMonto}, de ${nombreCliente}.`
-        : `¡Yape recibido! ${fraseMonto}.`;
+    const fraseMonto = formatMontoParaVoz(monto);
+    const nombreCliente = cleanCustomerName(remitente);
 
-      const utterance = new SpeechSynthesisUtterance(textoVoz);
-      utterance.lang = 'es-PE';
-      utterance.pitch = voiceGender === 'female' ? 1.08 : 0.95; // Tono más cálido y dulce
-      utterance.rate = 1.02; // Ritmo dinámico
+    // Frase amigable, alegre y directa
+    const textoVoz = nombreCliente
+      ? `¡Yape recibido! ${fraseMonto}, de ${nombreCliente}.`
+      : `¡Yape recibido! ${fraseMonto}.`;
 
-      const selectedVoice = getBestSpanishVoice(voiceGender);
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
+    const voiceCode = voiceGender === 'female' ? 'camila' : 'alex';
+    const audioUrl = `/yape/backend/public/api/tts.php?text=${encodeURIComponent(textoVoz)}&voice=${voiceCode}`;
 
-      window.speechSynthesis.speak(utterance);
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.pause();
     }
-  }, [voiceEnabled, voiceGender, getBestSpanishVoice]);
+    ttsAudioRef.current = new Audio(audioUrl);
+    ttsAudioRef.current.play().catch(e => {
+      console.warn("Fallo reproducción de TTS neural, intentando síntesis de navegador:", e);
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(textoVoz);
+        u.lang = 'es-PE';
+        window.speechSynthesis.speak(u);
+      }
+    });
+  }, [voiceEnabled, voiceGender]);
 
   const testVoice = (gender = voiceGender) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const fraseMonto = formatMontoParaVoz(25.00);
-      const textoVoz = `¡Yape recibido! ${fraseMonto}, de Juan Pérez.`;
+    const fraseMonto = formatMontoParaVoz(25.00);
+    const textoVoz = `¡Yape recibido! ${fraseMonto}, de Juan Pérez.`;
+    const voiceCode = gender === 'female' ? 'camila' : 'alex';
+    const audioUrl = `/yape/backend/public/api/tts.php?text=${encodeURIComponent(textoVoz)}&voice=${voiceCode}`;
 
-      const utterance = new SpeechSynthesisUtterance(textoVoz);
-      utterance.lang = 'es-PE';
-      utterance.pitch = gender === 'female' ? 1.08 : 0.95;
-      utterance.rate = 1.02;
-
-      const selectedVoice = getBestSpanishVoice(gender);
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
-
-      window.speechSynthesis.speak(utterance);
-    } else {
-      alert('Tu navegador no soporta síntesis de voz Web Speech.');
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.pause();
     }
+    ttsAudioRef.current = new Audio(audioUrl);
+    ttsAudioRef.current.play().catch(e => {
+      console.warn("Error reproduciendo audio neural:", e);
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(textoVoz);
+        u.lang = 'es-PE';
+        window.speechSynthesis.speak(u);
+      }
+    });
   };
 
   const isDemoMode = import.meta.env.VITE_MODE === 'demo' && user?.rol === 'admin';
@@ -486,7 +444,7 @@ function App() {
                             : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0]'
                         }`}
                       >
-                        👩 Femenina
+                        👩 Camila (Perú)
                       </button>
                       <button
                         onClick={() => {
@@ -500,7 +458,7 @@ function App() {
                             : 'bg-white text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0]'
                         }`}
                       >
-                        👨 Masculina
+                        👨 Alex (Perú)
                       </button>
                     </div>
                   </div>

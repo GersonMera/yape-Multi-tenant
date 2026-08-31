@@ -13,4 +13,6 @@ frontend/.env
 # Debug and temp files
 webhook_debug.txt
 test_regex.php
+backend/cache_tts/
+*.mp3
 .gemini/
