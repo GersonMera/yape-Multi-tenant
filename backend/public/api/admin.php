@@ -199,21 +199,43 @@ if ($action === 'renew_subscription') {
     $nuevoDiaCorte = $currentTenant['dia_corte_mensual'] ?: 30;
 
     if ($mode === 'from_today') {
-        // Modo A: 30 días completos a partir de hoy (fecha de pago)
-        $nuevaFecha = date('Y-m-d', strtotime('+30 days'));
-        $nuevoDiaCorte = (int)date('d', strtotime($nuevaFecha));
+        // Modo A: 1 mes calendario a partir de hoy (mismo día del próximo mes)
+        $now = new \DateTime();
+        $day = (int)$now->format('d');
+        $next = clone $now;
+        $next->modify('first day of next month');
+        $target = min($day, (int)$next->format('t'));
+        $next->setDate((int)$next->format('Y'), (int)$next->format('m'), $target);
+
+        $nuevaFecha = $next->format('Y-m-d');
+        $nuevoDiaCorte = $target;
     } elseif ($mode === 'from_due_date') {
         // Modo B: +1 mes sumado a la fecha anterior de vencimiento
         $baseDate = !empty($currentTenant['fecha_vencimiento']) ? $currentTenant['fecha_vencimiento'] : date('Y-m-d');
-        $nuevaFecha = date('Y-m-d', strtotime($baseDate . ' +1 month'));
+        $now = new \DateTime($baseDate);
+        $day = $currentTenant['dia_corte_mensual'] ? (int)$currentTenant['dia_corte_mensual'] : (int)$now->format('d');
+        $next = clone $now;
+        $next->modify('first day of next month');
+        $target = min($day, (int)$next->format('t'));
+        $next->setDate((int)$next->format('Y'), (int)$next->format('m'), $target);
+
+        $nuevaFecha = $next->format('Y-m-d');
+        $nuevoDiaCorte = $target;
     } elseif ($mode === 'custom' && !empty($customDate)) {
         // Fecha personalizada directa
         $nuevaFecha = date('Y-m-d', strtotime($customDate));
         $nuevoDiaCorte = (int)date('d', strtotime($nuevaFecha));
     } else {
         // Fallback por defecto: Modo A
-        $nuevaFecha = date('Y-m-d', strtotime('+30 days'));
-        $nuevoDiaCorte = (int)date('d', strtotime($nuevaFecha));
+        $now = new \DateTime();
+        $day = (int)$now->format('d');
+        $next = clone $now;
+        $next->modify('first day of next month');
+        $target = min($day, (int)$next->format('t'));
+        $next->setDate((int)$next->format('Y'), (int)$next->format('m'), $target);
+
+        $nuevaFecha = $next->format('Y-m-d');
+        $nuevoDiaCorte = $target;
     }
 
     $updateSql = "UPDATE tenants 

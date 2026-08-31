@@ -335,11 +335,15 @@ export const SuperAdminDashboard = () => {
     }
   };
 
-  // Calcular fecha tentativa para el Modo A (+30 días a partir de hoy)
+  // Calcular fecha tentativa para el Modo A (+1 mes exacto a partir de hoy)
   const getFechaModoA = () => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    return d.toLocaleDateString('es-PE');
+    const now = new Date();
+    const day = now.getDate();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const daysInNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate();
+    const targetDay = Math.min(day, daysInNextMonth);
+    nextMonth.setDate(targetDay);
+    return nextMonth.toLocaleDateString('es-PE');
   };
 
   // Métricas agregadas
@@ -1271,11 +1275,11 @@ export const SuperAdminDashboard = () => {
                         className="text-emerald-600 focus:ring-emerald-500"
                       />
                       <span className="text-xs font-bold text-[#0F172A]">
-                        🟢 Modo A: 30 Días completos a partir de HOY (Recomendado)
+                        🟢 Modo A: 1 Mes completo a partir de HOY (Recomendado)
                       </span>
                     </div>
                     <p className="text-xs text-[#64748B] pl-5">
-                      Ideal si el cliente estuvo bloqueado. Se le otorga el ciclo mensual completo hasta el <strong className="text-emerald-700">{getFechaModoA()}</strong> y su nuevo día de corte mensual será el día {new Date().getDate()}.
+                      Ideal si el cliente estuvo bloqueado. Se le otorga el mes completo hasta el <strong className="text-emerald-700">{getFechaModoA()}</strong> y su nuevo día de corte mensual será el día {new Date().getDate()}.
                     </p>
                   </div>
                 </div>
