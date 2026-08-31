@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   IconBarChart, 
@@ -10,7 +10,8 @@ import {
   IconCalendar,
   IconWhatsApp,
   IconLock,
-  IconRefresh
+  IconRefresh,
+  IconActivity
 } from './Icons';
 
 export const SuperAdminDashboard = () => {
@@ -18,7 +19,11 @@ export const SuperAdminDashboard = () => {
   const [tenants, setTenants] = useState([]);
   const [whatsappSoporte, setWhatsappSoporte] = useState('+51999999999');
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('general'); // general | comercios
+  const [activeTab, setActiveTab] = useState('general'); // 'general' | 'comercios'
+
+  // Filtros en Directorio
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'vigente' | 'por_vencer' | 'vencido'
 
   // Modal Nuevo Comercio
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -232,15 +237,46 @@ export const SuperAdminDashboard = () => {
     return d.toLocaleDateString('es-PE');
   };
 
+  // Métricas agregadas
   const totalStores = tenants.length;
   const activeStores = tenants.filter(t => t.estado === 'Activo' && !t.suscripcion?.is_expired).length;
+  const warningStores = tenants.filter(t => t.suscripcion?.badge === 'POR_VENCER' || t.suscripcion?.badge === 'VENCE_HOY').length;
   const expiredStores = tenants.filter(t => t.suscripcion?.is_expired || t.estado === 'Suspendido').length;
   const totalVolume = tenants.reduce((acc, t) => acc + (parseFloat(t.total_real) || 0), 0);
+  const totalTransactions = tenants.reduce((acc, t) => acc + (parseInt(t.count_yapes, 10) || 0), 0);
+  const avgTicket = totalTransactions > 0 ? (totalVolume / totalTransactions).toFixed(2) : '0.00';
+
+  // Ranking de comercios para la pestaña de Métricas
+  const sortedTenantsBySales = useMemo(() => {
+    return [...tenants].sort((a, b) => (parseFloat(b.total_real) || 0) - (parseFloat(a.total_real) || 0));
+  }, [tenants]);
+
+  // Filtrado de comercios para la pestaña de Directorio
+  const filteredTenants = useMemo(() => {
+    return tenants.filter((t) => {
+      // Filtro por texto (nombre o email)
+      const matchesText = 
+        t.nombre_negocio.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (!matchesText) return false;
+
+      // Filtro por estado de suscripción
+      const isExpired = t.suscripcion?.is_expired || t.estado === 'Suspendido';
+      const isWarning = t.suscripcion?.badge === 'POR_VENCER' || t.suscripcion?.badge === 'VENCE_HOY';
+
+      if (statusFilter === 'vigente') return !isExpired && !isWarning && t.estado === 'Activo';
+      if (statusFilter === 'por_vencer') return isWarning;
+      if (statusFilter === 'vencido') return isExpired;
+
+      return true; // 'all'
+    });
+  }, [tenants, searchQuery, statusFilter]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row text-[#0F172A]">
       {/* SIDEBAR CORPORATIVO EN BLANCO PURO */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E2E8F0] p-5 shrink-0">
+      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E2E8F0] p-5 shrink-0 bg-white">
         <div className="space-y-7">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
@@ -255,7 +291,7 @@ export const SuperAdminDashboard = () => {
             </div>
           </div>
 
-          {/* Nav */}
+          {/* Navegación por Pestañas Claras */}
           <nav className="space-y-1.5">
             <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider px-3 mb-2">Navegación Principal</p>
             
@@ -325,14 +361,16 @@ export const SuperAdminDashboard = () => {
         </div>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
+      {/* CONTENIDO PRINCIPAL DINÁMICO */}
       <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
         {/* Header Superior */}
         <header className="h-16 border-b border-[#E2E8F0] px-6 sm:px-10 flex items-center justify-between bg-white sticky top-0 z-20 shadow-xs">
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Panel Master</span>
             <span className="text-[#CBD5E1]">/</span>
-            <span className="text-xs font-bold text-[#0F172A]">Control Multi-Tenant & Suscripciones</span>
+            <span className="text-xs font-bold text-[#0F172A]">
+              {activeTab === 'general' ? 'Métricas & Analítica Global SaaS' : 'Directorio de Comercios & Facturación'}
+            </span>
           </div>
 
           <button
@@ -344,165 +382,387 @@ export const SuperAdminDashboard = () => {
           </button>
         </header>
 
-        <div className="p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto">
-          {/* Métricas Globales */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] space-y-1">
-              <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Comercios Afiliados</span>
-              <p className="text-2xl font-extrabold text-[#0F172A]">{totalStores}</p>
-              <span className="text-xs text-[#64748B]">Registrados en base de datos</span>
+        {/* ========================================================================= */}
+        {/* VISTA 1: MÉTRICAS SAAS (Centro Analítico y de Negocio) */}
+        {/* ========================================================================= */}
+        {activeTab === 'general' && (
+          <div className="p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto animate-fade-in">
+            {/* Título de Sección */}
+            <div>
+              <h2 className="text-lg font-bold text-[#0F172A]">Rendimiento General de la Plataforma</h2>
+              <p className="text-xs text-[#64748B] mt-0.5">Indicadores financieros consolidados y salud de la infraestructura</p>
             </div>
 
-            <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] space-y-1">
-              <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Suscripciones Activas</span>
-              <p className="text-2xl font-extrabold text-[#16A34A]">{activeStores}</p>
-              <span className="text-xs text-[#64748B]">Terminales operando en vivo</span>
+            {/* 4 KPIs Financieros Globales */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Volumen Global Yape</span>
+                <p className="text-2xl font-extrabold text-[#059669] font-mono">S/ {totalVolume.toFixed(2)}</p>
+                <span className="text-xs text-[#64748B]">Recaudado en todos los comercios</span>
+              </div>
+
+              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Cobros Procesados</span>
+                <p className="text-2xl font-extrabold text-[#0F172A]">{totalTransactions}</p>
+                <span className="text-xs text-[#64748B]">Pagos interceptados y validados</span>
+              </div>
+
+              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Ticket Promedio</span>
+                <p className="text-2xl font-extrabold text-[#7C3AED] font-mono">S/ {avgTicket}</p>
+                <span className="text-xs text-[#64748B]">Monto medio por transacción</span>
+              </div>
+
+              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Tasa de Comercios Activos</span>
+                <p className="text-2xl font-extrabold text-[#16A34A]">
+                  {totalStores > 0 ? Math.round((activeStores / totalStores) * 100) : 0}%
+                </p>
+                <span className="text-xs text-[#64748B]">{activeStores} de {totalStores} tiendas al día</span>
+              </div>
             </div>
 
-            <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] space-y-1">
-              <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Vencidas / Bloqueadas</span>
-              <p className="text-2xl font-extrabold text-red-600">{expiredStores}</p>
-              <span className="text-xs text-[#64748B]">Cajeros en pantalla de pago</span>
-            </div>
+            {/* Fila Analítica: Ranking de Ventas + Estado del Sistema */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Ranking de Comercios por Volumen (8 columnas) */}
+              <div className="lg:col-span-8 saas-card rounded-xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs">
+                <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-[#0F172A]">Ranking de Recaudación por Comercio</h3>
+                    <p className="text-xs text-[#64748B] mt-0.5">Tiendas con mayor actividad y volumen procesado</p>
+                  </div>
+                  <span className="text-[10px] font-bold text-[#7C3AED] bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-full uppercase">
+                    Top Rendimiento
+                  </span>
+                </div>
 
-            <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] space-y-1">
-              <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Volumen Global Yape</span>
-              <p className="text-2xl font-extrabold text-[#059669] font-mono">S/ {totalVolume.toFixed(2)}</p>
-              <span className="text-xs text-[#64748B]">Cobros reales acumulados</span>
+                <div className="p-5 space-y-4">
+                  {sortedTenantsBySales.length === 0 ? (
+                    <p className="text-center text-xs text-[#64748B] py-8">Sin comercios registrados.</p>
+                  ) : (
+                    sortedTenantsBySales.map((t, idx) => {
+                      const amount = parseFloat(t.total_real || 0);
+                      const maxAmount = parseFloat(sortedTenantsBySales[0]?.total_real || 1) || 1;
+                      const percentage = maxAmount > 0 ? Math.round((amount / maxAmount) * 100) : 0;
+
+                      return (
+                        <div key={t.id} className="space-y-1.5 p-3 rounded-xl hover:bg-[#F8FAFC] transition-colors border border-transparent hover:border-[#E2E8F0]">
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2.5">
+                              <span className="w-5 h-5 rounded-full bg-slate-100 font-mono text-[11px] font-bold text-[#475569] flex items-center justify-center">
+                                {idx + 1}
+                              </span>
+                              <span className="font-bold text-[#0F172A]">{t.nombre_negocio}</span>
+                              <span className="text-[11px] text-[#64748B] font-mono">({t.email})</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="font-mono font-bold text-[#059669] text-sm">
+                                S/ {amount.toFixed(2)}
+                              </span>
+                              <button
+                                onClick={() => setViewingTenant(t)}
+                                className="text-[11px] text-[#7C3AED] hover:underline font-semibold"
+                              >
+                                Ver Caja
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Barra de progreso de ventas */}
+                          <div className="w-full h-2 bg-[#F1F5F9] rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-[#7C3AED] rounded-full transition-all duration-500" 
+                              style={{ width: `${Math.max(percentage, 3)}%` }}
+                            ></div>
+                          </div>
+                          
+                          <div className="flex justify-between text-[10px] text-[#64748B]">
+                            <span>{t.count_yapes || 0} pagos procesados</span>
+                            <span>{percentage}% del volumen líder</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Salud del SaaS e Infraestructura (4 columnas) */}
+              <div className="lg:col-span-4 space-y-6">
+                {/* Salud de Suscripciones */}
+                <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-4 shadow-xs">
+                  <h3 className="text-sm font-bold text-[#0F172A]">Salud de Suscripciones</h3>
+
+                  <div className="space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <span className="font-semibold">🟢 Vigentes (Al día):</span>
+                      <span className="font-bold font-mono">{activeStores} tiendas</span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
+                      <span className="font-semibold">🟡 Por Vencer (≤3 días):</span>
+                      <span className="font-bold font-mono">{warningStores} tiendas</span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-red-50 text-red-800 border border-red-200">
+                      <span className="font-semibold">🔴 Vencidas / Bloqueadas:</span>
+                      <span className="font-bold font-mono">{expiredStores} tiendas</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('comercios')}
+                    className="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#CBD5E1] text-[#0F172A] font-semibold py-2 rounded-xl text-xs transition-colors text-center block"
+                  >
+                    Gestionar en el Directorio →
+                  </button>
+                </div>
+
+                {/* Estado de Conexiones del Servidor */}
+                <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-3 shadow-xs text-xs">
+                  <h3 className="text-sm font-bold text-[#0F172A]">Estado de Infraestructura</h3>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between py-1 border-b border-[#F1F5F9]">
+                      <span className="text-[#64748B]">Base de Datos MySQL:</span>
+                      <span className="font-bold text-[#16A34A] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span> Conectada
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between py-1 border-b border-[#F1F5F9]">
+                      <span className="text-[#64748B]">Pusher WebSockets:</span>
+                      <span className="font-bold text-[#16A34A] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span> En Línea
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between py-1 border-b border-[#F1F5F9]">
+                      <span className="text-[#64748B]">Webhook REST API:</span>
+                      <span className="font-bold text-[#16A34A] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span> Operando (200)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-[#64748B]">App Android Connector:</span>
+                      <span className="font-bold text-[#16A34A] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#16A34A]"></span> HTTP Habilitado
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Tabla de Comercios con Gestión de Suscripción */}
-          <div className="saas-card rounded-xl border border-[#E2E8F0] overflow-hidden shadow-xs">
-            <div className="p-5 border-b border-[#E2E8F0] flex flex-wrap items-center justify-between gap-4 bg-white">
+        {/* ========================================================================= */}
+        {/* VISTA 2: DIRECTORIO & SUSCRIPCIONES (Gestión de Tiendas y Facturación) */}
+        {/* ========================================================================= */}
+        {activeTab === 'comercios' && (
+          <div className="p-6 sm:p-10 space-y-6 max-w-7xl w-full mx-auto animate-fade-in">
+            {/* Header de la Sección */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="text-sm font-bold text-[#0F172A]">Directorio de Cajas & Estado de Facturación</h3>
-                <p className="text-xs text-[#64748B] mt-0.5">Controla las fechas de corte mensual, días restantes y renovaciones en 1 clic</p>
+                <h2 className="text-lg font-bold text-[#0F172A]">Directorio de Cajas & Facturación Mensual</h2>
+                <p className="text-xs text-[#64748B] mt-0.5">
+                  Administra las fechas de corte de cada comercio, ejecuta renovaciones en 1 clic y audita cajas
+                </p>
               </div>
+
               <button
                 onClick={fetchTenants}
-                className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-[#F8FAFC] hover:bg-[#F1F5F9] px-3.5 py-1.5 rounded-xl border border-[#CBD5E1] transition-colors inline-flex items-center gap-1.5"
+                className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F8FAFC] px-3.5 py-2 rounded-xl border border-[#CBD5E1] transition-colors inline-flex items-center gap-1.5 shadow-xs"
               >
                 <IconRefresh className="w-3.5 h-3.5" />
-                <span>Actualizar Lista</span>
+                <span>Actualizar Datos</span>
               </button>
             </div>
 
-            {loading ? (
-              <div className="p-12 text-center text-xs text-[#64748B]">Cargando datos de comercios y suscripciones...</div>
-            ) : tenants.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#64748B]">No hay tiendas registradas aún en el sistema.</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
-                    <tr>
-                      <th className="py-3.5 px-4">ID</th>
-                      <th className="py-3.5 px-4">Comercio</th>
-                      <th className="py-3.5 px-4">Día de Corte</th>
-                      <th className="py-3.5 px-4">Vencimiento</th>
-                      <th className="py-3.5 px-4">Vigencia</th>
-                      <th className="py-3.5 px-4 text-right">Recaudación</th>
-                      <th className="py-3.5 px-4 text-center">Acciones de Suscripción & Caja</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F0]">
-                    {tenants.map((t) => {
-                      const sub = t.suscripcion || {};
-                      const isExpired = sub.is_expired || t.estado === 'Suspendido';
+            {/* Barra de Filtros Rápidos & Buscador */}
+            <div className="bg-white border border-[#E2E8F0] p-4 rounded-xl shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between gap-4">
+              {/* Filtros tipo Chips */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider mr-1">Filtrar:</span>
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                    statusFilter === 'all'
+                      ? 'bg-[#7C3AED] text-white shadow-xs'
+                      : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0]'
+                  }`}
+                >
+                  Todos ({tenants.length})
+                </button>
 
-                      return (
-                        <tr key={t.id} className={`hover:bg-[#F8FAFC] transition-colors ${isExpired ? 'bg-red-50/20' : ''}`}>
-                          <td className="py-4 px-4 font-mono text-[#64748B]">#{t.id}</td>
-                          <td className="py-4 px-4">
-                            <span className="font-bold text-[#0F172A] block">{t.nombre_negocio}</span>
-                            <span className="text-[11px] text-[#64748B] font-mono">{t.email}</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="font-semibold text-[#334155] block">Día {t.dia_corte_mensual || 30}</span>
-                            <span className="text-[10px] text-[#64748B]">de cada mes</span>
-                          </td>
-                          <td className="py-4 px-4 font-mono text-xs">
-                            <span className="font-semibold text-[#0F172A] block">{formatFecha(t.fecha_vencimiento)}</span>
-                            {t.ultimo_pago_at && (
-                              <span className="text-[10px] text-[#64748B] block">Pago: {t.ultimo_pago_at.split(' ')[0]}</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold text-[11px] ${
-                              isExpired
-                                ? 'bg-red-100 text-red-700 border border-red-200'
-                                : sub.badge === 'POR_VENCER' || sub.badge === 'VENCE_HOY'
-                                ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            }`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${
-                                isExpired ? 'bg-red-600 animate-pulse' : sub.badge === 'POR_VENCER' ? 'bg-amber-500' : 'bg-[#16A34A]'
-                              }`}></span>
-                              {sub.texto || (isExpired ? 'Vencido' : 'Vigente')}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4 text-right font-mono font-bold text-[#059669] text-xs">
-                            S/ {parseFloat(t.total_real || 0).toFixed(2)}
-                          </td>
-                          <td className="py-4 px-4 text-center space-x-1.5 whitespace-nowrap">
-                            {/* Botón RENOVAR MODO A (+30 días desde HOY) */}
-                            <button
-                              onClick={() => {
-                                setRenewTenant(t);
-                                setRenewMode('from_today');
-                              }}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
-                              title="Renovar 30 días completos a partir de hoy (Modo A)"
-                            >
-                              <span>+30d Renovar</span>
-                            </button>
+                <button
+                  onClick={() => setStatusFilter('vigente')}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                    statusFilter === 'vigente'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                  }`}
+                >
+                  🟢 Vigentes ({activeStores})
+                </button>
 
-                            {/* Botón Ajustar Corte */}
-                            <button
-                              onClick={() => {
-                                setEditCorteTenant(t);
-                                setEditDiaCorte(t.dia_corte_mensual || 30);
-                                setEditFechaVenc(t.fecha_vencimiento || '');
-                              }}
-                              className="bg-white hover:bg-[#F1F5F9] text-[#334155] border border-[#CBD5E1] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all"
-                              title="Modificar día de corte o fecha límite manual"
-                            >
-                              <IconCalendar className="w-3.5 h-3.5" />
-                            </button>
+                <button
+                  onClick={() => setStatusFilter('por_vencer')}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                    statusFilter === 'por_vencer'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+                  }`}
+                >
+                  🟡 Por Vencer ({warningStores})
+                </button>
 
-                            {/* Botón Auditar Caja */}
-                            <button
-                              onClick={() => setViewingTenant(t)}
-                              className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1"
-                              title="Auditar pantalla del cajero"
-                            >
-                              <IconEye className="w-3.5 h-3.5" />
-                              <span>Auditar</span>
-                            </button>
-
-                            {/* Botón Suspender / Activar */}
-                            <button
-                              onClick={() => handleToggleStatus(t.id, t.estado)}
-                              className={`text-[11px] font-semibold px-2 py-1.5 rounded-lg border transition-all ${
-                                t.estado === 'Activo'
-                                  ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
-                                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
-                              }`}
-                              title={t.estado === 'Activo' ? 'Suspender temporalmente' : 'Activar acceso'}
-                            >
-                              {t.estado === 'Activo' ? 'Pausar' : 'Activar'}
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <button
+                  onClick={() => setStatusFilter('vencido')}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                    statusFilter === 'vencido'
+                      ? 'bg-red-600 text-white shadow-xs'
+                      : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                  }`}
+                >
+                  🔴 Vencidos / Bloqueados ({expiredStores})
+                </button>
               </div>
-            )}
+
+              {/* Buscador */}
+              <div className="w-full sm:w-64">
+                <input
+                  type="text"
+                  placeholder="Buscar tienda o correo..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full saas-input rounded-xl px-3.5 py-1.5 text-xs bg-[#F8FAFC]"
+                />
+              </div>
+            </div>
+
+            {/* Tabla de Comercios con Gestión de Suscripción */}
+            <div className="saas-card rounded-xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs">
+              {loading ? (
+                <div className="p-12 text-center text-xs text-[#64748B]">Cargando datos de comercios y suscripciones...</div>
+              ) : filteredTenants.length === 0 ? (
+                <div className="p-12 text-center text-xs text-[#64748B] space-y-2">
+                  <p className="font-semibold text-sm text-[#0F172A]">No se encontraron tiendas</p>
+                  <p>Intenta cambiar el término de búsqueda o el filtro de estado seleccionado.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+                      <tr>
+                        <th className="py-3.5 px-4">ID</th>
+                        <th className="py-3.5 px-4">Comercio</th>
+                        <th className="py-3.5 px-4">Día de Corte</th>
+                        <th className="py-3.5 px-4">Fecha Límite</th>
+                        <th className="py-3.5 px-4">Estado Suscripción</th>
+                        <th className="py-3.5 px-4 text-right">Recaudado (PEN)</th>
+                        <th className="py-3.5 px-4 text-center">Acciones de Cobro & Caja</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E2E8F0]">
+                      {filteredTenants.map((t) => {
+                        const sub = t.suscripcion || {};
+                        const isExpired = sub.is_expired || t.estado === 'Suspendido';
+
+                        return (
+                          <tr key={t.id} className={`hover:bg-[#F8FAFC] transition-colors ${isExpired ? 'bg-red-50/25' : ''}`}>
+                            <td className="py-4 px-4 font-mono text-[#64748B]">#{t.id}</td>
+                            <td className="py-4 px-4">
+                              <span className="font-bold text-[#0F172A] block text-sm">{t.nombre_negocio}</span>
+                              <span className="text-[11px] text-[#64748B] font-mono">{t.email}</span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="font-semibold text-[#334155] block">Día {t.dia_corte_mensual || 30}</span>
+                              <span className="text-[10px] text-[#64748B]">de cada mes</span>
+                            </td>
+                            <td className="py-4 px-4 font-mono text-xs">
+                              <span className="font-semibold text-[#0F172A] block">{formatFecha(t.fecha_vencimiento)}</span>
+                              {t.ultimo_pago_at && (
+                                <span className="text-[10px] text-[#64748B] block">Último: {t.ultimo_pago_at.split(' ')[0]}</span>
+                              )}
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold text-[11px] ${
+                                isExpired
+                                  ? 'bg-red-100 text-red-700 border border-red-200'
+                                  : sub.badge === 'POR_VENCER' || sub.badge === 'VENCE_HOY'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${
+                                  isExpired ? 'bg-red-600 animate-pulse' : sub.badge === 'POR_VENCER' ? 'bg-amber-500' : 'bg-[#16A34A]'
+                                }`}></span>
+                                {sub.texto || (isExpired ? 'Vencido' : 'Vigente')}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-right font-mono font-bold text-[#059669] text-xs">
+                              S/ {parseFloat(t.total_real || 0).toFixed(2)}
+                            </td>
+                            <td className="py-4 px-4 text-center space-x-1.5 whitespace-nowrap">
+                              {/* Botón RENOVAR MODO A (+30 días desde HOY) */}
+                              <button
+                                onClick={() => {
+                                  setRenewTenant(t);
+                                  setRenewMode('from_today');
+                                }}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
+                                title="Renovar 30 días completos a partir de hoy (Modo A)"
+                              >
+                                <span>+30d Renovar</span>
+                              </button>
+
+                              {/* Botón Ajustar Corte */}
+                              <button
+                                onClick={() => {
+                                  setEditCorteTenant(t);
+                                  setEditDiaCorte(t.dia_corte_mensual || 30);
+                                  setEditFechaVenc(t.fecha_vencimiento || '');
+                                }}
+                                className="bg-white hover:bg-[#F1F5F9] text-[#334155] border border-[#CBD5E1] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all"
+                                title="Modificar día de corte o fecha límite manual"
+                              >
+                                <IconCalendar className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Botón Auditar Caja */}
+                              <button
+                                onClick={() => setViewingTenant(t)}
+                                className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all inline-flex items-center gap-1"
+                                title="Auditar pantalla del cajero"
+                              >
+                                <IconEye className="w-3.5 h-3.5" />
+                                <span>Auditar</span>
+                              </button>
+
+                              {/* Botón Suspender / Activar */}
+                              <button
+                                onClick={() => handleToggleStatus(t.id, t.estado)}
+                                className={`text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-all ${
+                                  t.estado === 'Activo'
+                                    ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
+                                }`}
+                                title={t.estado === 'Activo' ? 'Suspender temporalmente' : 'Activar acceso'}
+                              >
+                                {t.estado === 'Activo' ? 'Pausar' : 'Activar'}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       {/* MODAL DE RENOVACIÓN INTELIGENTE (MODO A vs MODO B) */}
