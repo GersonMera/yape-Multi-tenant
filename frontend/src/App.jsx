@@ -612,16 +612,6 @@ function App() {
                 </div>
               )}
             </div>
-
-            <button
-              onClick={exportToCSV}
-              disabled={!transactions || transactions.length === 0}
-              className="bg-white hover:bg-[#F8FAFC] text-[#334155] hover:text-[#0F172A] border border-[#CBD5E1] text-xs font-semibold px-4 py-2 rounded-xl transition-all disabled:opacity-40 flex items-center gap-2 shadow-xs"
-              title="Descargar historial filtrado a archivo CSV / Excel"
-            >
-              <IconDownload className="w-4 h-4 shrink-0" />
-              <span>Exportar Excel/CSV</span>
-            </button>
           </div>
 
           {/* Resumen Contable Minimalista */}
