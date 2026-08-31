@@ -380,8 +380,75 @@ export const SuperAdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row text-[#0F172A]">
-      {/* SIDEBAR CORPORATIVO EN BLANCO PURO */}
-      <aside className="w-full md:w-64 saas-sidebar flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E2E8F0] p-5 shrink-0 bg-white">
+      {/* 1. BARRA SUPERIOR EXCLUSIVA PARA CELULAR (md:hidden) */}
+      <div className="md:hidden bg-white border-b border-[#E2E8F0] px-4 py-3 space-y-2.5 sticky top-0 z-30 shadow-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-[#7C3AED] rounded-xl flex items-center justify-center text-white font-bold text-base shadow-xs">
+              Y
+            </div>
+            <div>
+              <span className="font-bold text-[#0F172A] tracking-tight block text-xs leading-tight">Yape POS SaaS</span>
+              <span className="text-[9px] text-[#64748B] font-semibold uppercase tracking-wider block">
+                Super Admin
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* WhatsApp Soporte rápido */}
+            <button
+              onClick={() => {
+                setWpInput(whatsappSoporte);
+                setIsWpModalOpen(true);
+              }}
+              className="p-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5 text-xs font-semibold"
+              title="Configurar WhatsApp de Soporte"
+            >
+              <IconWhatsApp className="w-4 h-4 text-[#16A34A]" />
+              <span className="text-[10px] hidden xs:inline font-mono">{whatsappSoporte}</span>
+            </button>
+
+            {/* Cerrar Sesión */}
+            <button
+              onClick={logout}
+              className="p-2 rounded-xl bg-red-50 text-red-600 border border-red-200 transition-colors"
+              title="Cerrar Sesión"
+            >
+              <IconLogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Selector de Pestañas Segmentado para Celular */}
+        <div className="grid grid-cols-2 gap-1.5 bg-[#F1F5F9] p-1 rounded-xl">
+          <button
+            onClick={() => setActiveTab('general')}
+            className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'general'
+                ? 'bg-white text-[#7C3AED] shadow-2xs'
+                : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            <IconBarChart className="w-3.5 h-3.5" />
+            <span>Métricas</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('comercios')}
+            className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'comercios'
+                ? 'bg-white text-[#7C3AED] shadow-2xs'
+                : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            <IconStore className="w-3.5 h-3.5" />
+            <span>Directorio</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. SIDEBAR CORPORATIVO COMPLETO PARA DESKTOP (hidden md:flex) */}
+      <aside className="hidden md:flex md:w-64 saas-sidebar flex-col justify-between border-r border-[#E2E8F0] p-5 shrink-0 bg-white min-h-screen sticky top-0">
         <div className="space-y-7">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
@@ -449,7 +516,7 @@ export const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        {/* Footer Sidebar */}
+        {/* Footer Sidebar Desktop */}
         <div className="pt-6 border-t border-[#E2E8F0] space-y-4">
           <div className="px-3">
             <p className="text-xs font-bold text-[#0F172A] truncate">{user?.email || 'admin@yape.com'}</p>
@@ -468,22 +535,23 @@ export const SuperAdminDashboard = () => {
 
       {/* CONTENIDO PRINCIPAL DINÁMICO */}
       <main className="flex-1 flex flex-col min-h-screen overflow-y-auto">
-        {/* Header Superior */}
-        <header className="h-16 border-b border-[#E2E8F0] px-6 sm:px-10 flex items-center justify-between bg-white sticky top-0 z-20 shadow-xs">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Panel Master</span>
-            <span className="text-[#CBD5E1]">/</span>
-            <span className="text-xs font-bold text-[#0F172A]">
-              {activeTab === 'general' ? 'Métricas & Analítica Global SaaS' : 'Directorio de Comercios & Facturación'}
+        {/* Header Superior con Acción de Registrar */}
+        <header className="h-14 sm:h-16 border-b border-[#E2E8F0] px-4 sm:px-10 flex items-center justify-between bg-white sticky top-0 z-20 shadow-xs">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider hidden sm:inline">Panel Master</span>
+            <span className="text-[#CBD5E1] hidden sm:inline">/</span>
+            <span className="text-xs font-bold text-[#0F172A] truncate max-w-[180px] sm:max-w-none">
+              {activeTab === 'general' ? 'Métricas & Analítica Global' : 'Directorio de Comercios'}
             </span>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs inline-flex items-center gap-2"
+            className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold px-3.5 sm:px-4 py-2 rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5 shrink-0"
           >
             <IconPlus className="w-4 h-4" />
-            <span>Registrar Nuevo Comercio</span>
+            <span className="hidden sm:inline">Registrar Nuevo Comercio</span>
+            <span className="sm:hidden">Nuevo Comercio</span>
           </button>
         </header>
 
@@ -491,39 +559,39 @@ export const SuperAdminDashboard = () => {
         {/* VISTA 1: MÉTRICAS SAAS (Centro Analítico y de Negocio) */}
         {/* ========================================================================= */}
         {activeTab === 'general' && (
-          <div className="p-6 sm:p-10 space-y-8 max-w-7xl w-full mx-auto animate-fade-in">
+          <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl w-full mx-auto animate-fade-in">
             {/* Título de Sección */}
             <div>
-              <h2 className="text-lg font-bold text-[#0F172A]">Rendimiento General de la Plataforma</h2>
+              <h2 className="text-base sm:text-lg font-bold text-[#0F172A]">Rendimiento General de la Plataforma</h2>
               <p className="text-xs text-[#64748B] mt-0.5">Indicadores financieros consolidados y salud de la infraestructura</p>
             </div>
 
-            {/* 4 KPIs Financieros Globales */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
-                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Volumen Global Yape</span>
-                <p className="text-2xl font-extrabold text-[#059669] font-mono">S/ {totalVolume.toFixed(2)}</p>
-                <span className="text-xs text-[#64748B]">Recaudado en todos los comercios</span>
+            {/* 4 KPIs Financieros Globales (2x2 en Celular, 4 en Desktop) */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+              <div className="saas-card p-3.5 sm:p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#64748B] uppercase tracking-wider block truncate">Volumen Global</span>
+                <p className="text-xl sm:text-2xl font-extrabold text-[#059669] font-mono">S/ {totalVolume.toFixed(2)}</p>
+                <span className="text-[10px] sm:text-xs text-[#64748B] block truncate">Todos los comercios</span>
               </div>
 
-              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
-                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Cobros Procesados</span>
-                <p className="text-2xl font-extrabold text-[#0F172A]">{totalTransactions}</p>
-                <span className="text-xs text-[#64748B]">Pagos interceptados y validados</span>
+              <div className="saas-card p-3.5 sm:p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#64748B] uppercase tracking-wider block truncate">Cobros Procesados</span>
+                <p className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">{totalTransactions}</p>
+                <span className="text-[10px] sm:text-xs text-[#64748B] block truncate">Pagos validados</span>
               </div>
 
-              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
-                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Ticket Promedio</span>
-                <p className="text-2xl font-extrabold text-[#7C3AED] font-mono">S/ {avgTicket}</p>
-                <span className="text-xs text-[#64748B]">Monto medio por transacción</span>
+              <div className="saas-card p-3.5 sm:p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#64748B] uppercase tracking-wider block truncate">Ticket Promedio</span>
+                <p className="text-xl sm:text-2xl font-extrabold text-[#7C3AED] font-mono">S/ {avgTicket}</p>
+                <span className="text-[10px] sm:text-xs text-[#64748B] block truncate">Por transacción</span>
               </div>
 
-              <div className="saas-card p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
-                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Tasa de Comercios Activos</span>
-                <p className="text-2xl font-extrabold text-[#16A34A]">
+              <div className="saas-card p-3.5 sm:p-5 rounded-xl border border-[#E2E8F0] bg-white space-y-1 shadow-xs">
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#64748B] uppercase tracking-wider block truncate">Comercios Activos</span>
+                <p className="text-xl sm:text-2xl font-extrabold text-[#16A34A]">
                   {totalStores > 0 ? Math.round((activeStores / totalStores) * 100) : 0}%
                 </p>
-                <span className="text-xs text-[#64748B]">{activeStores} de {totalStores} tiendas al día</span>
+                <span className="text-[10px] sm:text-xs text-[#64748B] block truncate">{activeStores} de {totalStores} tiendas al día</span>
               </div>
             </div>
 
@@ -531,7 +599,7 @@ export const SuperAdminDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Ranking de Comercios por Volumen (8 columnas) */}
               <div className="lg:col-span-8 saas-card rounded-xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs">
-                <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between">
+                <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-[#0F172A]">Ranking de Recaudación por Comercio</h3>
                     <p className="text-xs text-[#64748B] mt-0.5">Tiendas con mayor actividad y volumen procesado</p>
@@ -666,11 +734,11 @@ export const SuperAdminDashboard = () => {
         {/* VISTA 2: DIRECTORIO & SUSCRIPCIONES (CRUD Completo de Comercios) */}
         {/* ========================================================================= */}
         {activeTab === 'comercios' && (
-          <div className="p-6 sm:p-10 space-y-6 max-w-7xl w-full mx-auto animate-fade-in">
+          <div className="p-4 sm:p-10 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto animate-fade-in">
             {/* Header de la Sección */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-[#0F172A]">Directorio de Cajas & Facturación Mensual</h2>
+                <h2 className="text-base sm:text-lg font-bold text-[#0F172A]">Directorio de Cajas & Facturación Mensual</h2>
                 <p className="text-xs text-[#64748B] mt-0.5">
                   Administra, edita o elimina comercios, controla días de corte y ejecuta renovaciones en 1 clic
                 </p>
@@ -679,7 +747,7 @@ export const SuperAdminDashboard = () => {
               <div className="flex items-center gap-2.5">
                 <button
                   onClick={fetchTenants}
-                  className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F8FAFC] px-3.5 py-2 rounded-xl border border-[#CBD5E1] transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                  className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F8FAFC] px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-[#CBD5E1] transition-colors inline-flex items-center gap-1.5 shadow-xs"
                 >
                   <IconRefresh className="w-3.5 h-3.5" />
                   <span>Actualizar Datos</span>
@@ -687,14 +755,13 @@ export const SuperAdminDashboard = () => {
               </div>
             </div>
 
-            {/* Barra de Filtros Rápidos & Buscador */}
-            <div className="bg-white border border-[#E2E8F0] p-4 rounded-xl shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between gap-4">
-              {/* Filtros tipo Chips */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider mr-1">Filtrar:</span>
+            {/* Barra de Filtros Rápidos & Buscador Responsivo */}
+            <div className="bg-white border border-[#E2E8F0] p-3 sm:p-4 rounded-xl shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between gap-4">
+              {/* Filtros tipo Chips con scroll horizontal táctil */}
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
                     statusFilter === 'all'
                       ? 'bg-[#7C3AED] text-white shadow-xs'
                       : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] border border-[#E2E8F0]'
@@ -705,7 +772,7 @@ export const SuperAdminDashboard = () => {
 
                 <button
                   onClick={() => setStatusFilter('vigente')}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
                     statusFilter === 'vigente'
                       ? 'bg-emerald-600 text-white shadow-xs'
                       : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
@@ -716,7 +783,7 @@ export const SuperAdminDashboard = () => {
 
                 <button
                   onClick={() => setStatusFilter('por_vencer')}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
                     statusFilter === 'por_vencer'
                       ? 'bg-amber-600 text-white shadow-xs'
                       : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
@@ -727,13 +794,13 @@ export const SuperAdminDashboard = () => {
 
                 <button
                   onClick={() => setStatusFilter('vencido')}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
                     statusFilter === 'vencido'
                       ? 'bg-red-600 text-white shadow-xs'
                       : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
                   }`}
                 >
-                  🔴 Vencidos / Bloqueados ({expiredStores})
+                  🔴 Vencidos ({expiredStores})
                 </button>
               </div>
 
@@ -749,7 +816,7 @@ export const SuperAdminDashboard = () => {
               </div>
             </div>
 
-            {/* Tabla de Comercios con CRUD Completo */}
+            {/* Contenedor de Comercios: Tabla en Desktop, Tarjetas Agrupadas en Móvil */}
             <div className="saas-card rounded-xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs">
               {loading ? (
                 <div className="p-12 text-center text-xs text-[#64748B]">Cargando datos de comercios y suscripciones...</div>
@@ -759,119 +826,224 @@ export const SuperAdminDashboard = () => {
                   <p>Intenta cambiar el término de búsqueda o el filtro de estado seleccionado.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
-                      <tr>
-                        <th className="py-3.5 px-4">ID</th>
-                        <th className="py-3.5 px-4">Comercio</th>
-                        <th className="py-3.5 px-4">Día de Corte</th>
-                        <th className="py-3.5 px-4">Fecha Límite</th>
-                        <th className="py-3.5 px-4">Estado Suscripción</th>
-                        <th className="py-3.5 px-4 text-right">Recaudado (PEN)</th>
-                        <th className="py-3.5 px-4 text-center">Gestión & Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#E2E8F0]">
-                      {filteredTenants.map((t) => {
-                        const sub = t.suscripcion || {};
-                        const isExpired = sub.is_expired || t.estado === 'Suspendido';
+                <>
+                  {/* VISTA 1: TABLA PARA COMPUTADORA / TABLET (hidden md:block) */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+                        <tr>
+                          <th className="py-3.5 px-4">ID</th>
+                          <th className="py-3.5 px-4">Comercio</th>
+                          <th className="py-3.5 px-4">Día de Corte</th>
+                          <th className="py-3.5 px-4">Fecha Límite</th>
+                          <th className="py-3.5 px-4">Estado Suscripción</th>
+                          <th className="py-3.5 px-4 text-right">Recaudado (PEN)</th>
+                          <th className="py-3.5 px-4 text-center">Gestión & Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0]">
+                        {filteredTenants.map((t) => {
+                          const sub = t.suscripcion || {};
+                          const isExpired = sub.is_expired || t.estado === 'Suspendido';
 
-                        return (
-                          <tr key={t.id} className={`hover:bg-[#F8FAFC] transition-colors ${isExpired ? 'bg-red-50/25' : ''}`}>
-                            <td className="py-4 px-4 font-mono text-[#64748B]">#{t.id}</td>
-                            <td className="py-4 px-4">
-                              <span className="font-bold text-[#0F172A] block text-sm">{t.nombre_negocio}</span>
-                              <span className="text-[11px] text-[#64748B] font-mono">{t.email}</span>
-                            </td>
-                            <td className="py-4 px-4">
-                              <span className="font-semibold text-[#334155] block">Día {t.dia_corte_mensual || 30}</span>
-                              <span className="text-[10px] text-[#64748B]">de cada mes</span>
-                            </td>
-                            <td className="py-4 px-4 font-mono text-xs">
-                              <span className="font-semibold text-[#0F172A] block">{formatFecha(t.fecha_vencimiento)}</span>
-                              {t.ultimo_pago_at && (
-                                <span className="text-[10px] text-[#64748B] block">Último: {t.ultimo_pago_at.split(' ')[0]}</span>
-                              )}
-                            </td>
-                            <td className="py-4 px-4">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold text-[11px] ${
-                                isExpired
-                                  ? 'bg-red-100 text-red-700 border border-red-200'
-                                  : sub.badge === 'POR_VENCER' || sub.badge === 'VENCE_HOY'
-                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${
-                                  isExpired ? 'bg-red-600 animate-pulse' : sub.badge === 'POR_VENCER' ? 'bg-amber-500' : 'bg-[#16A34A]'
-                                }`}></span>
-                                {sub.texto || (isExpired ? 'Vencido' : 'Vigente')}
+                          return (
+                            <tr key={t.id} className={`hover:bg-[#F8FAFC] transition-colors ${isExpired ? 'bg-red-50/25' : ''}`}>
+                              <td className="py-4 px-4 font-mono text-[#64748B]">#{t.id}</td>
+                              <td className="py-4 px-4">
+                                <span className="font-bold text-[#0F172A] block text-sm">{t.nombre_negocio}</span>
+                                <span className="text-[11px] text-[#64748B] font-mono">{t.email}</span>
+                              </td>
+                              <td className="py-4 px-4">
+                                <span className="font-semibold text-[#334155] block">Día {t.dia_corte_mensual || 30}</span>
+                                <span className="text-[10px] text-[#64748B]">de cada mes</span>
+                              </td>
+                              <td className="py-4 px-4 font-mono text-xs">
+                                <span className="font-semibold text-[#0F172A] block">{formatFecha(t.fecha_vencimiento)}</span>
+                                {t.ultimo_pago_at && (
+                                  <span className="text-[10px] text-[#64748B] block">Último: {t.ultimo_pago_at.split(' ')[0]}</span>
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold text-[11px] ${
+                                  isExpired
+                                    ? 'bg-red-100 text-red-700 border border-red-200'
+                                    : sub.badge === 'POR_VENCER' || sub.badge === 'VENCE_HOY'
+                                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                }`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${
+                                    isExpired ? 'bg-red-600 animate-pulse' : sub.badge === 'POR_VENCER' ? 'bg-amber-500' : 'bg-[#16A34A]'
+                                  }`}></span>
+                                  {sub.texto || (isExpired ? 'Vencido' : 'Vigente')}
+                                </span>
+                              </td>
+                              <td className="py-4 px-4 text-right font-mono font-bold text-[#059669] text-xs">
+                                S/ {parseFloat(t.total_real || 0).toFixed(2)}
+                              </td>
+                              <td className="py-4 px-4 text-center space-x-1.5 whitespace-nowrap">
+                                <button
+                                  onClick={() => {
+                                    setRenewTenant(t);
+                                    setRenewMode('from_today');
+                                  }}
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
+                                  title="Renovar 30 días completos a partir de hoy (Modo A)"
+                                >
+                                  <span>+30d Renovar</span>
+                                </button>
+
+                                <button
+                                  onClick={() => openEditModal(t)}
+                                  className="bg-white hover:bg-blue-50 text-blue-700 hover:text-blue-900 border border-blue-200 text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1 shadow-2xs"
+                                  title="Editar datos del comercio, correo, contraseña o corte"
+                                >
+                                  <IconEdit className="w-3.5 h-3.5" />
+                                  <span>Editar</span>
+                                </button>
+
+                                <button
+                                  onClick={() => setViewingTenant(t)}
+                                  className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1 shadow-2xs"
+                                  title="Auditar pantalla del cajero"
+                                >
+                                  <IconEye className="w-3.5 h-3.5" />
+                                  <span>Auditar</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleToggleStatus(t.id, t.estado)}
+                                  className={`text-[11px] font-semibold px-2 py-1.5 rounded-lg border transition-all shadow-2xs ${
+                                    t.estado === 'Activo'
+                                      ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
+                                  }`}
+                                  title={t.estado === 'Activo' ? 'Suspender temporalmente' : 'Activar acceso'}
+                                >
+                                  {t.estado === 'Activo' ? 'Pausar' : 'Activar'}
+                                </button>
+
+                                <button
+                                  onClick={() => setDeleteTenant(t)}
+                                  className="bg-white hover:bg-red-50 text-red-600 hover:text-red-800 border border-red-200 text-[11px] font-semibold p-1.5 rounded-lg transition-all shadow-2xs inline-flex items-center"
+                                  title="Eliminar comercio definitivamente"
+                                >
+                                  <IconTrash className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* VISTA 2: TARJETAS AGRUPADAS NATIVAS PARA CELULAR (block md:hidden) */}
+                  <div className="block md:hidden divide-y divide-[#E2E8F0]">
+                    {filteredTenants.map((t) => {
+                      const sub = t.suscripcion || {};
+                      const isExpired = sub.is_expired || t.estado === 'Suspendido';
+
+                      return (
+                        <div key={t.id} className={`p-4 space-y-3 transition-colors ${isExpired ? 'bg-red-50/20' : 'bg-white'}`}>
+                          {/* Cabecera de la Tarjeta */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono text-[11px] font-bold text-[#64748B]">#{t.id}</span>
+                                <h4 className="font-bold text-[#0F172A] text-sm truncate">{t.nombre_negocio}</h4>
+                              </div>
+                              <p className="text-[11px] text-[#64748B] font-mono truncate">{t.email}</p>
+                            </div>
+
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px] shrink-0 ${
+                              isExpired
+                                ? 'bg-red-100 text-red-700 border border-red-200'
+                                : sub.badge === 'POR_VENCER' || sub.badge === 'VENCE_HOY'
+                                ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                isExpired ? 'bg-red-600 animate-pulse' : sub.badge === 'POR_VENCER' ? 'bg-amber-500' : 'bg-[#16A34A]'
+                              }`}></span>
+                              {sub.texto || (isExpired ? 'Vencido' : 'Vigente')}
+                            </span>
+                          </div>
+
+                          {/* Cuadrícula de Datos Clave (2 columnas) */}
+                          <div className="grid grid-cols-2 gap-2 bg-[#F8FAFC] border border-[#E2E8F0] p-2.5 rounded-xl text-xs">
+                            <div>
+                              <span className="text-[10px] font-bold text-[#64748B] uppercase block">Día de Corte</span>
+                              <span className="font-bold text-[#0F172A]">Día {t.dia_corte_mensual || 30}</span>
+                              <span className="text-[9px] text-[#64748B] block">de cada mes</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-bold text-[#64748B] uppercase block">Fecha Límite</span>
+                              <span className="font-bold font-mono text-[#0F172A]">{formatFecha(t.fecha_vencimiento)}</span>
+                              <span className="text-[9px] text-[#64748B] block truncate">
+                                Recaudado: <b className="text-[#059669] font-mono">S/ {parseFloat(t.total_real || 0).toFixed(2)}</b>
                               </span>
-                            </td>
-                            <td className="py-4 px-4 text-right font-mono font-bold text-[#059669] text-xs">
-                              S/ {parseFloat(t.total_real || 0).toFixed(2)}
-                            </td>
-                            <td className="py-4 px-4 text-center space-x-1.5 whitespace-nowrap">
-                              {/* Botón RENOVAR MODO A (+30 días desde HOY) */}
+                            </div>
+                          </div>
+
+                          {/* Botonera Móvil Ergonómica Agrupada */}
+                          <div className="space-y-2 pt-0.5">
+                            {/* Fila 1: Auditar y Renovar */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => setViewingTenant(t)}
+                                className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-xs font-bold py-2 px-3 rounded-xl transition-all inline-flex items-center justify-center gap-1.5 shadow-2xs"
+                              >
+                                <IconEye className="w-3.5 h-3.5" />
+                                <span>Auditar Caja</span>
+                              </button>
+
                               <button
                                 onClick={() => {
                                   setRenewTenant(t);
                                   setRenewMode('from_today');
                                 }}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-xs inline-flex items-center gap-1"
-                                title="Renovar 30 días completos a partir de hoy (Modo A)"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-xl transition-all shadow-xs inline-flex items-center justify-center gap-1.5"
                               >
+                                <IconRefresh className="w-3.5 h-3.5" />
                                 <span>+30d Renovar</span>
                               </button>
+                            </div>
 
-                              {/* Botón EDITAR COMERCIO (CRUD UPDATE) */}
+                            {/* Fila 2: Editar, Pausar/Activar y Eliminar */}
+                            <div className="flex items-center gap-2">
                               <button
                                 onClick={() => openEditModal(t)}
-                                className="bg-white hover:bg-blue-50 text-blue-700 hover:text-blue-900 border border-blue-200 text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1 shadow-2xs"
-                                title="Editar datos del comercio, correo, contraseña o corte"
+                                className="flex-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold py-1.5 px-3 rounded-xl transition-all inline-flex items-center justify-center gap-1 shadow-2xs"
                               >
                                 <IconEdit className="w-3.5 h-3.5" />
                                 <span>Editar</span>
                               </button>
 
-                              {/* Botón Auditar Caja */}
-                              <button
-                                onClick={() => setViewingTenant(t)}
-                                className="bg-[#F3E8FF] hover:bg-[#7C3AED] text-[#6D28D9] hover:text-white border border-[#E9D5FF] text-[11px] font-semibold px-2 py-1.5 rounded-lg transition-all inline-flex items-center gap-1 shadow-2xs"
-                                title="Auditar pantalla del cajero"
-                              >
-                                <IconEye className="w-3.5 h-3.5" />
-                                <span>Auditar</span>
-                              </button>
-
-                              {/* Botón Suspender / Activar */}
                               <button
                                 onClick={() => handleToggleStatus(t.id, t.estado)}
-                                className={`text-[11px] font-semibold px-2 py-1.5 rounded-lg border transition-all shadow-2xs ${
+                                className={`flex-1 py-1.5 px-3 rounded-xl border text-xs font-semibold transition-all shadow-2xs text-center ${
                                   t.estado === 'Activo'
-                                    ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
-                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200'
+                                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                    : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                                 }`}
-                                title={t.estado === 'Activo' ? 'Suspender temporalmente' : 'Activar acceso'}
                               >
                                 {t.estado === 'Activo' ? 'Pausar' : 'Activar'}
                               </button>
 
-                              {/* Botón ELIMINAR COMERCIO (CRUD DELETE) */}
                               <button
                                 onClick={() => setDeleteTenant(t)}
-                                className="bg-white hover:bg-red-50 text-red-600 hover:text-red-800 border border-red-200 text-[11px] font-semibold p-1.5 rounded-lg transition-all shadow-2xs inline-flex items-center"
+                                className="p-2 rounded-xl border border-red-200 bg-white hover:bg-red-50 text-red-600 transition-all shadow-2xs shrink-0"
                                 title="Eliminar comercio definitivamente"
                               >
                                 <IconTrash className="w-3.5 h-3.5" />
                               </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
           </div>
